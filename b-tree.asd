@@ -7,5 +7,6 @@
   :version "0.0.1"
   :serial t
   :components ((:file "package")
+               (:file "record")
                (:file "pager")
                (:file "b-tree")))

@@ -1,9 +1,5 @@
 # b-tree
-### _Your Name <your.name@example.com>_
+### Yaneko Yoruneko
 
-This is a project to do ... something.
-
-## License
-
-Specify license here
+Implementation of b-tree for database index use
 

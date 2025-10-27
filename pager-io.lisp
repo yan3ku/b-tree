@@ -5,6 +5,21 @@
 (defun page-write-i4 (i4) (seq-write-i4 i4 *page-buf*))
 (defun page-read-i4  ()   (seq-read-i4 *page-buf*))
 
+(defun read-page (page-addr)
+  "Load page from index file beginning at address"
+  (let ((buf (make-page-buf)))
+    (assert (file-position (index-file *pager*) (page-byte-loc page-addr)))
+    (setf (fill-pointer buf) (page-size *pager*))
+    (read-sequence buf (index-file *pager*))
+    ;; poping from vector (what record::seq-read does) effectively reverses the order
+    ;; so this nreverse cancels out
+    (nreverse buf)))
+
+(defun write-page (page-addr page-buf)
+  "Write page to the index file"
+  (assert (file-position (index-file *pager*) (page-byte-loc page-addr)))
+  (write-sequence page-buf (index-file *pager*)))
+
 (defmacro with-out-page (page-nr &body body)
   `(let ((*page-buf* (make-page-buf)))
      ,@body
@@ -39,10 +54,9 @@
     (with-slots (record-file index-file) *pager*
       (setf record-file (apply #'open record-file-name open-opts))
       (setf index-file  (apply #'open index-file-name  open-opts)))
-
     (if page-size
         (progn
-          (setf (page-count *pager*) 0)
+          (setf (page-count *pager*) 1) ;  page 0 is header and page 1 is root
           (write-header *pager*))
         (read-header *pager*))))
 

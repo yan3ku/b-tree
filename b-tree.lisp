@@ -71,11 +71,12 @@
   (close-pager)
   (setf *tree* nil))
 
+(defun make-b-node (addr)
+  (make-instance 'b-node :addr addr :keys (make-array (tree-order *tree*) :fill-pointer 0)))
+
+
 (defun make-b-tree (order)
   (when *tree* (save-b-tree))
   (let ((tree (make-instance 'b-tree :order order)))
-    (setf (tree-root tree) (make-instance 'b-node))
+    (setf (tree-root tree) (make-b-node 1))
     (setf *tree* tree)))
-
-(defun make-b-node (addr)
-  (make-instance 'b-node :addr addr :keys (make-array (tree-order *tree*) :fill-pointer 0)))

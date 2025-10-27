@@ -9,7 +9,7 @@
   :components ((:file "package")
                (:file "record")
                (:file "pager")
-               (:file "pager-aux")
+               (:file "pager-io")
                (:file "b-tree")
                (:file "b-tree-io")
                (:file "b-tree-insert"))

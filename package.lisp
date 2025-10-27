@@ -14,6 +14,7 @@
   (:export #:pager #:*pager*
            #:open-pager #:close-pager
            #:seq-write-i4 #:seq-read-i4
+           #:next-page-addr
            ;; #:read-record #:write-record
            #:make-page-buf
            #:read-page   #:write-page

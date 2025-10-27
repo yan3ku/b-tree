@@ -14,7 +14,6 @@
                   (setf pred-ptr   (page-read-i4)))
             :do (vector-push key (node-keys node))))))
 
-
 (defmethod write-node ((self b-node))
   (with-out-page (node-addr self)
     (page-write-i4 (length (node-keys self)))
@@ -30,7 +29,6 @@
     (format t "--- B-TREE PRINT START ---~%")
     (b-print-node root-addr 0)
     (format t "--- B-TREE PRINT END ---~%")))
-
 
 (defun b-print-node (node-addr depth)
   (let ((node (read-node node-addr)))

@@ -39,21 +39,6 @@
 (defun next-page-addr ()
   (incf (page-count *pager*)))
 
-(defun read-page (page-addr)
-  "Load page from index file beginning at address"
-  (let ((buf (make-page-buf)))
-    (assert (file-position (index-file *pager*) (page-byte-loc page-addr)))
-    (setf (fill-pointer buf) (page-size *pager*))
-    (read-sequence buf (index-file *pager*))
-    ;; poping from vector (what record::seq-read does) effectively reverses the order
-    ;; so this nreverse cancels out
-    (nreverse buf)))
-
-(defun write-page (page-addr page-buf)
-  "Write page to the index file"
-  (assert (file-position (index-file *pager*) (page-byte-loc page-addr)))
-  (write-sequence page-buf (index-file *pager*)))
-
 ;; (defun write-record (record &optional addr)
 ;;   (when addr
 ;;     (assert (file-position (index-file *pager*) (byte-loc addr))))

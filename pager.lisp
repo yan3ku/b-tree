@@ -27,8 +27,17 @@
     :documentation "The number of currently managed pages"))
   (:documentation "Disk access layer implementing block reads and writes for B-tree nodes"))
 
+(defun current-page-size ()
+  (page-size pager::*pager*))
+
+(defun current-page-count ()
+  (page-count pager::*pager*))
+
 (defun make-page-buf ()
   (make-array (page-size *pager*) :element-type '(unsigned-byte 8) :fill-pointer 0))
+
+(defun next-page-addr ()
+  (incf (page-count *pager*)))
 
 (defun read-page (page-addr)
   "Load page from index file beginning at address"

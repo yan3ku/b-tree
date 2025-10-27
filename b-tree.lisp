@@ -4,6 +4,8 @@
 (defvar +b-key-size+ (* 4 3) ;; 4-bytes * 3-fields (key, record, pred)
   "Size in bytes of b key on page")
 
+(defparameter *tree* nil)
+
 (defclass b-tree ()
   ((root
     :type b-node
@@ -11,18 +13,12 @@
     :accessor tree-root
     :documentation "The keys in the node")
    (order
-    :type fixnum
     :initarg :order
     :accessor tree-order
     :documentation "The max number of keys in one node (and one page")
    (node-size
-    :type fixnum
     :accessor tree-node-size
-    :documentation "Node size size on page")
-   (pager
-    :type pager
-    :accessor tree-pager
-    :documentation "Pager used to write nodes to disk"))
+    :documentation "Node size size on page"))
   (:documentation "B-tree root"))
 
 (defclass b-key ()
@@ -46,7 +42,7 @@
 (defclass b-node ()
   ((addr
     :type fixnum
-    :initarg :node-addr
+    :initarg :addr
     :accessor node-addr
     :documentation "Address to the page containing this B-tree node")
    (keys
@@ -61,5 +57,25 @@
     :documentation "Pointer to b-node page containing keys greater than the max key in this node"))
   (:documentation "B-tree node coresponding to one page"))
 
-(defun b-print ()
-  )
+(defun next-power-of-two (n)
+  (expt 2 (ceiling (log n 2))))
+
+(defmethod initialize-instance :after ((self b-tree) &key)
+  (with-slots (node-size pager) self
+    (setf node-size (+ (* (tree-order self) +b-key-size+)
+                       ;; 2-fields (keys-count, succ-ptr)
+                       (* 4 2)))
+    (open-pager "test" (next-power-of-two node-size))))
+
+(defun save-b-tree ()
+  (close-pager)
+  (setf *tree* nil))
+
+(defun make-b-tree (order)
+  (when *tree* (save-b-tree))
+  (let ((tree (make-instance 'b-tree :order order)))
+    (setf (tree-root tree) (make-instance 'b-node))
+    (setf *tree* tree)))
+
+(defun make-b-node (addr)
+  (make-instance 'b-node :addr addr :keys (make-array (tree-order *tree*) :fill-pointer 0)))

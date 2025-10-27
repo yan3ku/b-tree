@@ -2,42 +2,28 @@
 (in-package :b-tree)
 
 (defun read-node (addr)
-  (let* ((node (make-instance 'b-node))
-         (page (read-page addr))
-         (keys-count (seq-read-i4 page)))
-    (setf (node-succ node) (seq-read-i4 page))
-    (loop :with keys = (make-array keys-count :fill-pointer 0)
-          :repeat keys-count
-          :for key = (make-instance 'b-key)
-          :do (with-slots (key record-ptr pred-ptr) key
-                (setf key        (seq-read-i4 page))
-                (setf record-ptr (seq-read-i4 page))
-                (setf pred-ptr   (seq-read-i4 page)))
-          :do (vector-push key keys))
-    (setf (node-addr node) addr)
-    (write-page addr page)))
+  (with-in-page addr
+    (let* ((node (make-b-node addr))
+           (keys-count (page-read-i4)))
+      (setf (node-succ node) (page-read-i4))
+      (loop :repeat keys-count
+            :for key = (make-instance 'b-key)
+            :do (with-slots (key record-ptr pred-ptr) key
+                  (setf key        (page-read-i4))
+                  (setf record-ptr (page-read-i4))
+                  (setf pred-ptr   (page-read-i4)))
+            :do (vector-push key (node-keys node))))))
 
 
 (defmethod write-node ((self b-node))
-  (let ((page (make-page-buf)))
-    (seq-write-i4 (length (node-keys self)) page)
-    (seq-write-i4 (node-succ self) page)
+  (with-out-page (node-addr self)
+    (page-write-i4 (length (node-keys self)))
+    (page-write-i4 (node-succ self))
     (loop :for key :across (node-keys self)
           :do (with-slots (key record-ptr pred-ptr) key
-                (seq-write-i4 key        page)
-                (seq-write-i4 record-ptr page)
-                (seq-write-i4 pred-ptr   page)))
-    (write-page (node-addr self) page)))
-
-(defmethod initialize-instance :after ((self b-tree) &key)
-  (with-slots (node-size pager) self
-    (setf node-size (+ (* (tree-order self) +b-key-size+)
-                       ;; 2-fields (keys-length, succ)
-                       (* 4 2)))
-    (setf pager (make-instance 'pager :page-size (tree-size self)))))
-
-(defmethod rem-tree ((self b-tree))
-  (close-pager))
+                (page-write-i4 key)
+                (page-write-i4 record-ptr)
+                (page-write-i4 pred-ptr)))))
 
 (defun b-print (tree)
   (let ((root-addr (node-addr (tree-root tree))))

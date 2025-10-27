@@ -28,6 +28,7 @@
     (page-write-i4 (page-count self))))
 
 (defun open-pager (name &optional page-size)
+  (when *pager* (close-pager))
   (setf *pager* (make-instance 'pager :page-size page-size))
   (let* ((index-file-name  (concatenate 'string name ".i"))
          (record-file-name (concatenate 'string name ".r"))

@@ -5,12 +5,13 @@
   (:export #:read-record  #:write-record
            #:seq-write-i4 #:seq-read-i4
            #:make-record
+           #:current-page-size #:current-page-count
            #:make-random-record))
 
 (defpackage #:pager
   (:use #:cl)
   (:import-from #:record #:seq-write-i4 #:seq-read-i4)
-  (:export #:*pager*
+  (:export #:pager #:*pager*
            #:open-pager #:close-pager
            #:seq-write-i4 #:seq-read-i4
            ;; #:read-record #:write-record

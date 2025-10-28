@@ -3,10 +3,10 @@
 
 (defparameter *pager* nil)
 
-(defmacro page-nr  (addr) `(ldb (byte 16 0)  ,addr))
-(defmacro page-off (addr) `(ldb (byte 16 16) ,addr))
-(defun page-byte-loc (addr) (* (page-nr addr) (page-size *pager*)))
-(defun byte-loc      (addr) (+ (page-byte-loc addr) (page-off addr)))
+(defmacro page-numer  (addr) `(ldb (byte 16 0)  ,addr))
+(defmacro page-offset (addr) `(ldb (byte 16 16) ,addr))
+(defun page-byte0 (addr) (* (page-numer addr) (page-size *pager*)))
+(defun page-byte  (addr) (+ (page-byte0 addr) (page-offset addr)))
 
 (defclass pager ()
   ((index-file

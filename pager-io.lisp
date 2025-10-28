@@ -8,7 +8,7 @@
 (defun read-page (page-addr)
   "Load page from index file beginning at address"
   (let ((buf (make-page-buf)))
-    (assert (file-position (index-file *pager*) (page-byte-loc page-addr)))
+    (assert (file-position (index-file *pager*) (page-byte0 page-addr)))
     (setf (fill-pointer buf) (page-size *pager*))
     (read-sequence buf (index-file *pager*))
     ;; poping from vector (what record::seq-read does) effectively reverses the order
@@ -17,7 +17,7 @@
 
 (defun write-page (page-addr page-buf)
   "Write page to the index file"
-  (assert (file-position (index-file *pager*) (page-byte-loc page-addr)))
+  (assert (file-position (index-file *pager*) (page-byte0 page-addr)))
   (write-sequence page-buf (index-file *pager*)))
 
 (defmacro with-out-page (page-nr &body body)

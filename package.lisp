@@ -13,6 +13,8 @@
   (:export #:pager #:*pager*
            #:open-pager #:close-pager
            #:seq-write-i4 #:seq-read-i4
+           #:read-header
+           #:write-header
            #:next-page-addr
            #:page-size
            #:page-position

@@ -52,14 +52,14 @@
     (page-write-i4 (page-size  p))
     (page-write-i4 (page-count p))))
 
-(defmethod initialize-instance :after ((p pager) &key index-file record-file page-size)
+(defmethod initialize-instance :after ((p pager) &key index-file record-file)
   (let* ((open-opts `(:direction :io
-                      :if-exists ,(if page-size :supersede :append)
+                      :if-exists ,(if (page-size p) :supersede :append)
                       :if-does-not-exist :create
                       :element-type (unsigned-byte 8))))
     (setf (record-file p) (apply #'open record-file open-opts))
     (setf (index-file p)  (apply #'open index-file  open-opts))
-    (if page-size
+    (if (page-size p)
         (progn
           (setf (page-count p) 1) ;  page 0 is header and page 1 is root
           (write-header p))

@@ -75,9 +75,12 @@
 (defmethod close-b-tree ((tree b-tree))
   (close-pager tree))
 
-(defmethod make-b-node ((tree b-tree) addr)
-  (make-instance 'b-node :addr addr :keys (make-array tree :fill-pointer 0)))
+(defmethod make-b-node ((tree b-tree) page-addr)
+  (make-instance 'b-node :addr page-addr :keys (make-array (tree-order tree) :fill-pointer 0)))
 
-(defun make-b-tree (&optional order)
-  (let ((tree (make-instance 'b-tree :order order)))
-    (setf (tree-root tree) (make-b-node tree 1))))
+(defun make-b-tree (name &optional order)
+  (let ((tree (make-instance 'b-tree :order order
+                                     :index-file  (concatenate 'string name ".i")
+                                     :record-file (concatenate 'string name ".r"))))
+    (setf (tree-root tree) (make-b-node tree 1))
+    tree))

@@ -1,8 +1,8 @@
 ;; b-tree-io.lisp
 (in-package :b-tree)
 
-(defun read-node (addr)
-  (with-in-page addr
+(defmethod read-node ((tree b-tree) addr)
+  (with-in-page tree addr
     (let* ((node (make-b-node addr))
            (keys-count (page-read-i4)))
       (setf (node-succ node) (page-read-i4))
@@ -14,11 +14,11 @@
                   (setf pred-ptr   (page-read-i4)))
             :do (vector-push key (node-keys node))))))
 
-(defmethod write-node ((self b-node))
-  (with-out-page (node-addr self)
-    (page-write-i4 (length (node-keys self)))
-    (page-write-i4 (node-succ self))
-    (loop :for key :across (node-keys self)
+(defmethod write-node ((tree b-tree) (node b-node))
+  (with-out-page tree (node-addr node)
+    (page-write-i4 (length (node-keys node)))
+    (page-write-i4 (node-succ node))
+    (loop :for key :across (node-keys node)
           :do (with-slots (key record-ptr pred-ptr) key
                 (page-write-i4 key)
                 (page-write-i4 record-ptr)

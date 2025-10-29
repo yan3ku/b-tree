@@ -29,13 +29,13 @@
   (vector-push (ldb (byte 8 8)  i4) buf)
   (vector-push (ldb (byte 8 0)  i4) buf))
 
-(defmethod print-object ((self record) stream)
-  (print-unreadable-object (self stream :type t)
-    (multiple-value-bind (second minute hour date month year) (decode-universal-time (record-value self))
+(defmethod print-object ((r record) stream)
+  (print-unreadable-object (r stream :type t)
+    (multiple-value-bind (second minute hour date month year) (decode-universal-time (record-value r))
       (format stream "~2,'0d:~2,'0d:~2,'0d ~2,'0d/~2,'0d/~S" hour minute second date month year))))
 
-(defmethod write-record ((self record) buf)
-  (seq-write-i4 buf (record-value self)))
+(defmethod write-record ((r record) buf)
+  (seq-write-i4 buf (record-value r)))
 
 (defun read-record (buf)
   (let ((rc (make-record)))

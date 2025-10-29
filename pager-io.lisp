@@ -42,23 +42,23 @@
     (page-write-i4 (page-size  p))
     (page-write-i4 (page-count p))))
 
+(defmethod initialize-instance :after ((p pager) &key index-file record-file page-size)
+  (let* ((open-opts `(:direction :io
+                      :if-exists ,(if page-size :supersede :append)
+                      :if-does-not-exist :create
+                      :element-type (unsigned-byte 8))))
+    (setf (record-file p) (apply #'open record-file open-opts))
+    (setf (index-file p)  (apply #'open index-file  open-opts))
+    (if page-size
+        (progn
+          (setf (page-count p) 1) ;  page 0 is header and page 1 is root
+          (write-header p))
+        (read-header p))))
+
 (defun open-pager (name &optional page-size)
-  (let ((pager (make-instance 'pager :page-size page-size)))
-    (let* ((index-file-name  (concatenate 'string name ".i"))
-           (record-file-name (concatenate 'string name ".r"))
-           (open-opts `(:direction :io
-                        :if-exists ,(if page-size :supersede :append)
-                        :if-does-not-exist :create
-                        :element-type (unsigned-byte 8))))
-      (with-slots (record-file index-file) pager
-        (setf record-file (apply #'open record-file-name open-opts))
-        (setf index-file  (apply #'open index-file-name  open-opts)))
-      (if page-size
-          (progn
-            (setf (page-count pager) 1) ;  page 0 is header and page 1 is root
-            (write-header pager))
-          (read-header pager))
-      pager)))
+  (make-instance 'pager :index-file  (concatenate 'string name ".i")
+                        :record-file (concatenate 'string name ".r")
+                        :page-size page-size))
 
 (defmethod close-pager ((p pager) &key (delete nil delete-p))
   ;; (write-header p)

@@ -5,7 +5,6 @@
   (:export #:read-record  #:write-record
            #:seq-write-i4 #:seq-read-i4
            #:make-record
-           #:current-page-size #:current-page-count
            #:make-random-record))
 
 (defpackage #:pager
@@ -15,6 +14,10 @@
            #:open-pager #:close-pager
            #:seq-write-i4 #:seq-read-i4
            #:next-page-addr
+           #:page-size
+           #:page-position
+           #:page-read-n
+           #:page-write-at
            ;; #:read-record #:write-record
            #:make-page-buf
            #:read-page   #:write-page
@@ -22,8 +25,15 @@
            #:page-read-i4 #:page-write-i4
            #:page-nr #:page-off))
 
+(defpackage #:b-tree
+  (:use #:cl #:pager #:record)
+  (:export #:b-tree
+           #:make-b-tree
+           #:close-b-tree
+           #:tree-order))
+
 (defpackage #:pager-test
   (:use #:cl #:fiveam #:pager))
 
-(defpackage #:b-tree
-  (:use #:cl #:pager #:record))
+(defpackage #:b-tree-test
+  (:use #:cl #:fiveam #:pager #:b-tree))

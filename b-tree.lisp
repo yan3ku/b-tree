@@ -4,8 +4,6 @@
 (defvar +b-key-size+ (* 4 3) ;; 4-bytes * 3-fields (key, record, pred)
   "Size in bytes of b key on page")
 
-(defparameter *tree* nil)
-
 (defclass b-tree (pager)
   ((root
     :type b-node
@@ -15,10 +13,7 @@
    (order
     :initarg :order
     :accessor tree-order
-    :documentation "The max number of keys in one node (and one page")
-   (node-size
-    :accessor tree-node-size
-    :documentation "Node size size on page"))
+    :documentation "The max number of keys in one node (and one page"))
   (:documentation "B-tree root"))
 
 (defclass b-key ()
@@ -60,23 +55,29 @@
 (defun next-power-of-two (n)
   (expt 2 (ceiling (log n 2))))
 
-(defmethod initialize-instance :after ((self b-tree) &key)
-  (with-slots (node-size pager) self
-    (setf node-size (+ (* (tree-order self) +b-key-size+)
-                       ;; 2-fields (keys-count, succ-ptr)
-                       (* 4 2)))
-    (open-pager "test" (next-power-of-two node-size))))
+(defmethod initialize-instance :before ((tree b-tree) &key order)
+  (when order
+    (setf (page-size tree) (next-power-of-two
+                            (+ (* order +b-key-size+)
+                               ;; 2-fields (keys-count, succ-ptr)
+                               (* 4 2))))))
 
-(defun save-b-tree ()
-  (close-pager)
-  (setf *tree* nil))
+(defmethod write-header :after ((tree b-tree))
+  (with-out-page tree 0
+    (page-write-at 8)
+    (page-write-i4 (tree-order tree))))
 
-(defun make-b-node (addr)
-  (make-instance 'b-node :addr addr :keys (make-array (tree-order *tree*) :fill-pointer 0)))
+(defmethod read-header :after ((tree b-tree))
+  (with-in-page tree 0
+    (page-read-n 8)
+    (setf (tree-order tree) (page-read-i4))))
 
+(defmethod close-b-tree ((tree b-tree))
+  (close-pager tree))
 
-(defun make-b-tree (order)
-  (when *tree* (save-b-tree))
+(defmethod make-b-node ((tree b-tree) addr)
+  (make-instance 'b-node :addr addr :keys (make-array tree :fill-pointer 0)))
+
+(defun make-b-tree (&optional order)
   (let ((tree (make-instance 'b-tree :order order)))
-    (setf (tree-root tree) (make-b-node 1))
-    (setf *tree* tree)))
+    (setf (tree-root tree) (make-b-node tree 1))))

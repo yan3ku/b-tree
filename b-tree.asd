@@ -10,10 +10,9 @@
                (:file "record")
                (:file "pager")
                (:file "pager-io")
-               ;; (:file "b-tree")
-               ;; (:file "b-tree-io")
-               ;; (:file "b-tree-insert")
-               )
+               (:file "b-tree")
+               (:file "b-tree-io")
+               (:file "b-tree-insert"))
   :in-order-to ((test-op (test-op #:b-tree/test))))
 
 
@@ -24,6 +23,7 @@
   :version "0.0.1"
   :depends-on (#:b-tree)
   :serial t
-  :components ((:file "pager-test"))
+  :components ((:file "pager-test")
+               (:file "b-tree-test"))
   :perform (test-op (o s)
                     (uiop:symbol-call :fiveam :run-all-tests)))

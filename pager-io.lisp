@@ -1,9 +1,17 @@
 (in-package :pager)
 
-(defparameter *page-buf* nil)
+(defparameter *page-buffer* nil)
+(defparameter *page-write-at* 0)
 
-(defun page-write-i4 (i4) (seq-write-i4 i4 *page-buf*))
-(defun page-read-i4  ()   (seq-read-i4 *page-buf*))
+(defun page-write-i4 (i4) (seq-write-i4 i4 *page-buffer*))
+(defun page-read-i4  ()   (seq-read-i4 *page-buffer*))
+(defun page-read-n (n)
+  "Consume n bytes; usefull for reading from offset"
+  (loop :repeat n :do (vector-pop *page-buffer*)))
+
+(defun page-write-at (n)
+  "Sets offset in page for appending"
+  (setf *page-write-at* n))
 
 (defmethod read-page ((p pager) page-addr)
   "Load page from index file beginning at address"
@@ -15,18 +23,20 @@
     ;; so this nreverse cancels out
     (nreverse buf)))
 
-(defmethod write-page ((p pager) page-addr page-buf)
+(defmethod write-page ((p pager) page-addr page-buffer)
   "Write page to the index file"
-  (assert (file-position (index-file p) (page-byte0 p page-addr)))
-  (write-sequence page-buf (index-file p)))
+  (assert (file-position (index-file p) (+ (page-byte0 p page-addr)
+                                           *page-write-at*)))
+  (write-sequence page-buffer (index-file p))
+  (setf *page-write-at* 0))
 
 (defmacro with-out-page (pager page-nr &body body)
-  `(let ((*page-buf* (make-page-buffer ,pager)))
+  `(let ((*page-buffer* (make-page-buffer ,pager)))
      ,@body
-     (write-page ,pager ,page-nr *page-buf*)))
+     (write-page ,pager ,page-nr *page-buffer*)))
 
 (defmacro with-in-page (pager page-nr &body body)
-  `(let ((*page-buf* (read-page ,pager ,page-nr)))
+  `(let ((*page-buffer* (read-page ,pager ,page-nr)))
      ,@body))
 
 (defmethod read-header ((p pager))
@@ -61,8 +71,8 @@
                         :page-size page-size))
 
 (defmethod close-pager ((p pager) &key (delete nil delete-p))
-  ;; (write-header p)
   (declare (ignore delete))
+  (write-header p)
   (close (record-file p))
   (close (index-file  p))
   (when  delete-p

@@ -6,7 +6,7 @@
 
 (defparameter *tree* nil)
 
-(defclass b-tree ()
+(defclass b-tree (pager)
   ((root
     :type b-node
     :initarg  :root

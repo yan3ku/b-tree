@@ -10,9 +10,10 @@
                (:file "record")
                (:file "pager")
                (:file "pager-io")
-               (:file "b-tree")
-               (:file "b-tree-io")
-               (:file "b-tree-insert"))
+               ;; (:file "b-tree")
+               ;; (:file "b-tree-io")
+               ;; (:file "b-tree-insert")
+               )
   :in-order-to ((test-op (test-op #:b-tree/test))))
 
 

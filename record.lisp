@@ -20,10 +20,12 @@
     (setf (ldb (byte 8 16) i4) (vector-pop buf))
     (setf (ldb (byte 8 8)  i4) (vector-pop buf))
     (setf (ldb (byte 8 0)  i4) (vector-pop buf))
-    i4))
+    (- (ldb (byte 32 0) (+ i4 (ash 1 31))) (ash 1 31))))
 
 (defun seq-write-i4 (i4 buf)
   (declare (fixnum i4) ((vector (unsigned-byte 8)) buf))
+  (when (= (length buf) (array-total-size buf))
+    (error "overflow"))
   (vector-push (ldb (byte 8 24) i4) buf)
   (vector-push (ldb (byte 8 16) i4) buf)
   (vector-push (ldb (byte 8 8)  i4) buf)

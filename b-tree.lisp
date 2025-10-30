@@ -58,6 +58,15 @@
     :documentation "Pointer to b-node page containing keys greater than the max key in this node"))
   (:documentation "B-tree node coresponding to one page"))
 
+(defmacro for-keys ((key node) &body body)
+  (let ((index) (key-var key))
+    (when (listp key)
+      (setf index   (cadr key)
+            key-var (car  key)))
+    `(loop ,@(if (listp key) `(:for ,index :from 0))
+           :for ,key-var :across (node-keys ,node) :do
+           ,@body)))
+
 (defun next-power-of-two (n)
   (expt 2 (ceiling (log n 2))))
 
@@ -86,6 +95,9 @@
 (defmethod make-b-node ((tree b-tree) page-addr)
   (make-instance 'b-node :addr page-addr :keys (make-array (tree-order tree) :fill-pointer 0)))
 
+(defmethod make-b-key (key)
+  (make-instance 'b-key :key key :record-ptr nil))
+
 (defmethod slot-unbound (class (tree b-tree) (slot-name (eql 'root)))
   (setf (tree-root tree) (make-b-node tree (root-addr tree))))
 
@@ -94,3 +106,15 @@
                                      :index-file  (concatenate 'string name ".i")
                                      :record-file (concatenate 'string name ".r"))))
     tree))
+
+(defmethod node-keys-count ((node b-node))
+  (length (node-keys node)))
+
+(defmethod print-object ((key b-key) stream)
+  (print-unreadable-object (key stream :type t)
+    (prin1 (b-key key) stream)))
+
+(defmethod print-object ((node b-node) stream)
+  (print-unreadable-object (node stream :type t)
+    (for-keys (key node)
+      (prin1 key stream))))

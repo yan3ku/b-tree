@@ -21,6 +21,7 @@
            #:page-read-n
            #:page-write-at
            #:header-addr
+           #:new-page-addr
            ;; #:read-record #:write-record
            #:make-page-buf
            #:read-page   #:write-page
@@ -34,6 +35,7 @@
            #:tree-root
            #:make-b-tree
            #:node-keys
+           #:node-keys-count
            #:close-b-tree
            #:tree-order))
 

@@ -38,7 +38,7 @@
 (defmethod make-page-buffer ((p pager))
   (make-array (page-size p) :element-type '(unsigned-byte 8) :fill-pointer 0))
 
-(defmethod pager-new-page-addr ((p pager))
+(defmethod new-page-addr ((p pager))
   (incf (page-count p)))
 
 ;; (defun write-record (record &optional addr)

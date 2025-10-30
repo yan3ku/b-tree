@@ -20,6 +20,7 @@
            #:page-position
            #:page-read-n
            #:page-write-at
+           #:header-addr
            ;; #:read-record #:write-record
            #:make-page-buf
            #:read-page   #:write-page
@@ -30,7 +31,9 @@
 (defpackage #:b-tree
   (:use #:cl #:pager #:record)
   (:export #:b-tree
+           #:tree-root
            #:make-b-tree
+           #:node-keys
            #:close-b-tree
            #:tree-order))
 

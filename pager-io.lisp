@@ -61,7 +61,7 @@
     (setf (index-file p)  (apply #'open index-file  open-opts))
     (if (page-size p)
         (progn
-          (setf (page-count p) 1) ;  page 0 is header and page 1 is root
+          (setf (page-count p) (1+ (header-addr p))) ;  page 0 is header
           (write-header p))
         (read-header p))))
 
@@ -70,12 +70,11 @@
                         :record-file (concatenate 'string name ".r")
                         :page-size page-size))
 
-(defmethod close-pager ((p pager) &key (delete nil delete-p))
-  (declare (ignore delete))
+(defmethod close-pager ((p pager) &key delete)
   (write-header p)
   (close (record-file p))
   (close (index-file  p))
-  (when  delete-p
+  (when  delete
     (delete-file (record-file p))
     (delete-file (index-file p))))
 

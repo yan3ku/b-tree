@@ -1,28 +1,37 @@
 ;; b-tree-io.lisp
 (in-package :b-tree)
 
+(defun encode-pointer (val)
+  "Convert null to 0. Because pointer 0 is for header this must be nil"
+  (or val 0))
+
+(defun decode-pointer (i4)
+  (if (zerop i4) nil i4))
+
 (defmethod read-node ((tree b-tree) addr)
   (with-in-page tree addr
-    (let* ((node (make-b-node addr))
+    (let* ((node (make-b-node tree addr))
            (keys-count (page-read-i4)))
-      (setf (node-succ node) (page-read-i4))
+      (setf (node-succ-ptr node) (decode-pointer (page-read-i4)))
       (loop :repeat keys-count
             :for key = (make-instance 'b-key)
+            :do (format t "reading keys")
             :do (with-slots (key record-ptr pred-ptr) key
                   (setf key        (page-read-i4))
-                  (setf record-ptr (page-read-i4))
-                  (setf pred-ptr   (page-read-i4)))
-            :do (vector-push key (node-keys node))))))
+                  (setf record-ptr (decode-pointer (page-read-i4)))
+                  (setf pred-ptr   (decode-pointer (page-read-i4))))
+            :do (vector-push key (node-keys node)))
+      node)))
 
 (defmethod write-node ((tree b-tree) (node b-node))
   (with-out-page tree (node-addr node)
     (page-write-i4 (length (node-keys node)))
-    (page-write-i4 (node-succ node))
+    (page-write-i4 (encode-pointer (node-succ-ptr node)))
     (loop :for key :across (node-keys node)
           :do (with-slots (key record-ptr pred-ptr) key
                 (page-write-i4 key)
-                (page-write-i4 record-ptr)
-                (page-write-i4 pred-ptr)))))
+                (page-write-i4 (encode-pointer record-ptr))
+                (page-write-i4 (encode-pointer pred-ptr))))))
 
 ;; (defun b-print (tree)
 ;;   (let ((root-addr (node-addr (tree-root tree))))

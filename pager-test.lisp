@@ -61,8 +61,3 @@
         (loop for i from 1 to (/ 512 4) do
           (is (= i (/ (page-read-i4) page-nr))))))
     (close-pager p :delete t)))
-
-#+nil
-(setf *run-test-when-defined* t)
-#+nil
-(setf *debug-on-error* t)

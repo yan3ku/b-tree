@@ -2,7 +2,11 @@
 (in-package :pager)
 
 (defclass pager ()
-  ((index-file
+  ((header-addr
+    :initform 0
+    :reader header-addr
+    :allocation :class)
+   (index-file
     :initarg :index-file
     :accessor index-file
     :documentation "File containing B-tree index")

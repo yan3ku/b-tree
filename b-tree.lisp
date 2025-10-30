@@ -5,7 +5,11 @@
   "Size in bytes of b key on page")
 
 (defclass b-tree (pager)
-  ((root
+  ((root-addr
+    :initform 1
+    :reader root-addr
+    :allocation :class)
+   (root
     :type b-node
     :initarg  :root
     :accessor tree-root
@@ -23,14 +27,15 @@
     :accessor b-key
     :documentation "The key value")
    (record-ptr
-    :type fixnum
+    :type (or fixnum null)
     :initarg :record-ptr
-    :accessor b-record
+    :accessor b-record-ptr
     :documentation "Pointer to the page containing the key record")
    (pred-ptr
-    :type fixnum
+    :initform nil
+    :type (or fixnum null)
     :initarg :pred-ptr
-    :accessor b-pred
+    :accessor b-pred-ptr
     :documentation "Pointer to b-node page with records lesser than key"))
   (:documentation "B-tree key that contains the pointer to value and predecessor records"))
 
@@ -46,9 +51,10 @@
     :accessor node-keys
     :documentation "The keys in the node")
    (succ-ptr
-    :type fixnum
+    :initform nil
+    :type (or fixnum null)
     :initarg :succ-ptr
-    :accessor node-succ
+    :accessor node-succ-ptr
     :documentation "Pointer to b-node page containing keys greater than the max key in this node"))
   (:documentation "B-tree node coresponding to one page"))
 
@@ -63,24 +69,28 @@
                                (* 4 2))))))
 
 (defmethod write-header :after ((tree b-tree))
-  (with-out-page tree 0
+  (with-out-page tree (header-addr tree)
     (page-write-at 8)
     (page-write-i4 (tree-order tree))))
 
 (defmethod read-header :after ((tree b-tree))
-  (with-in-page tree 0
+  (with-in-page tree (header-addr tree)
     (page-read-n 8)
-    (setf (tree-order tree) (page-read-i4))))
+    (setf (tree-order tree) (page-read-i4)))
+  (setf (tree-root tree) (read-node tree (root-addr tree))))
 
-(defmethod close-b-tree ((tree b-tree))
-  (close-pager tree))
+(defmethod close-b-tree ((tree b-tree) &key delete)
+  (write-node tree (tree-root tree))
+  (close-pager tree :delete delete))
 
 (defmethod make-b-node ((tree b-tree) page-addr)
   (make-instance 'b-node :addr page-addr :keys (make-array (tree-order tree) :fill-pointer 0)))
+
+(defmethod slot-unbound (class (tree b-tree) (slot-name (eql 'root)))
+  (setf (tree-root tree) (make-b-node tree (root-addr tree))))
 
 (defun make-b-tree (name &optional order)
   (let ((tree (make-instance 'b-tree :order order
                                      :index-file  (concatenate 'string name ".i")
                                      :record-file (concatenate 'string name ".r"))))
-    (setf (tree-root tree) (make-b-node tree 1))
     tree))

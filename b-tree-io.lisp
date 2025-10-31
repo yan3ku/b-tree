@@ -26,8 +26,8 @@
   (with-out-page tree (node-addr node)
     (page-write-i4 (node-keys-count node))
     (page-write-i4 (encode-pointer (node-succ-ptr node)))
-    (for-keys ((key i) node)
-      (with-slots (key record-ptr pred-ptr) key
+    (for-keys ((k i) node)
+      (with-slots (key record-ptr pred-ptr) k
         (page-write-i4 key)
         (page-write-i4 (encode-pointer record-ptr))
         (page-write-i4 (encode-pointer pred-ptr)))

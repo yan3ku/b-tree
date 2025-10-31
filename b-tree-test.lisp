@@ -17,6 +17,14 @@
              (is (zerop (node-keys-count (tree-root tree)))))
         (close-b-tree tree :delete t)))))
 
+(test split-test
+  (for-all ((test (gen-list :length (gen-integer :min 3 :max 100))))
+    (let ((a (make-array (length test) :initial-contents test :fill-pointer (length test)))
+          (b (make-array (length test) :fill-pointer 0)))
+      (destructuring-bind (l m r)
+          (b-tree::vector-split a b)
+        (is (equalp test (concatenate 'list l (list m) r)))))))
+
 ;; (defclass foo ()
 ;;   ((a)))
 

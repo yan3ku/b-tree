@@ -16,7 +16,11 @@
                (:file "pager")
                (:file "pager-io")
                (:file "b-tree")
+               (:file "b-key")
+               (:file "b-node")
+               (:file "b-tree-aux")
                (:file "b-tree-io")
+               (:file "b-tree-find")
                (:file "b-tree-insert"))
   :in-order-to ((test-op (test-op #:b-tree/test))))
 

@@ -77,3 +77,6 @@
       (when (key> k to-find)
         (return (make-key-ref node i)))
       :finally (return (make-key-ref node i)))))
+
+(defmethod b-node-leafp ((node b-node))
+  (null (node-succ-ptr node)))

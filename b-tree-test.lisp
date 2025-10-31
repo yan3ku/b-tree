@@ -8,11 +8,11 @@
 
 (test create-b-tree
   (for-all ((order (gen-integer :min 0 :max 9999)))
-    (let ((tree (make-b-tree "test" order)))
+    (let ((tree (make-b-tree "b-tree-test" order)))
       (unwind-protect
            (progn
              (close-b-tree tree)
-             (setf tree (make-b-tree "test"))
+             (setf tree (make-b-tree "b-tree-test"))
              (is (equal order (tree-order tree)))
              (is (zerop (node-keys-count (tree-root tree)))))
         (close-b-tree tree :delete t)))))
@@ -24,6 +24,17 @@
       (destructuring-bind (l m r)
           (b-tree::vector-split a b)
         (is (equalp test (concatenate 'list l (list m) r)))))))
+
+(test insertion-test
+  (with-tree (tree "b-tree-test" :order 5)
+    (let ((expected
+            (loop for i from 10 to 1000 by 10 collect i do
+              (b-tree-insert tree (b-tree::make-b-key i)))))
+      ;; (b-tree::b-tree-print tree)
+      (let ((result nil))
+        (b-tree::b-tree-traverse tree (b-tree::root-addr tree)
+                                 (lambda (key) (push (b-tree::b-key key) result)))
+        (is (equal (reverse expected) result))))))
 
 ;; (defclass foo ()
 ;;   ((a)))

@@ -35,7 +35,9 @@
            #:tree-root
            #:make-b-tree
            #:node-keys
+           #:b-tree-insert
            #:node-keys-count
+           #:with-tree
            #:close-b-tree
            #:tree-order))
 

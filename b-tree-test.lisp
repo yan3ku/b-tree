@@ -21,16 +21,15 @@
   (for-all ((test (gen-list :length (gen-integer :min 3 :max 100))))
     (let ((a (make-array (length test) :initial-contents test :fill-pointer (length test)))
           (b (make-array (length test) :fill-pointer 0)))
-      (destructuring-bind (l m r)
-          (b-tree::vector-split a b)
-        (is (equalp test (concatenate 'list l (list m) r)))))))
+      (let ((m (b-tree::vector-split-into a b)))
+        (is (equalp test (concatenate 'list a (list m) b)))))))
 
 (test insertion-test
   (with-tree (tree "b-tree-test" :order 5)
     (let ((expected
             (loop for i from 10 to 1000 by 10 collect i do
               (b-tree-insert tree (b-tree::make-b-key i)))))
-      ;; (b-tree::b-tree-print tree)
+      (b-tree::b-tree-print tree)
       (let ((result nil))
         (b-tree::b-tree-traverse tree (b-tree::root-addr tree)
                                  (lambda (key) (push (b-tree::b-key key) result)))

@@ -62,6 +62,9 @@
 (defmethod ref-key ((ref b-key-ref))
   (aref (node-keys (ref-node ref)) (ref-index ref)))
 
+(defmethod (setf ref-key) (new (ref b-key-ref))
+  (setf (aref (node-keys (ref-node ref)) (ref-index ref)) new))
+
 (defmethod ref-succession-p ((ref b-key-ref))
   "Check if reference points to the succession pointer"
   (= (ref-index ref) (node-keys-count (ref-node ref))))
@@ -80,3 +83,27 @@
   (if (ref-succession-p ref)
       (node-succ-ptr (ref-node ref))
       (b-pred-ptr (ref-key ref))))
+
+(defmethod ref-succ-ptr ((ref b-key-ref))
+  (ref-key-ptr (make-key-ref (ref-node ref)
+                             (1+ (ref-index ref)))))
+
+
+(defmethod ref-pred-key ((ref b-key-ref))
+  (make-key-ref (ref-node ref)
+                (1- (ref-index ref))))
+
+(defmethod ref-pred-ptr ((ref b-key-ref))
+  (ref-key-ptr (ref-pred-key ref)))
+
+(defun ref-p (ref)
+  (typep ref 'b-key-ref))
+
+(defmethod (setf ref-succ-ptr) (new (ref b-key-ref))
+  (let ((succ (make-key-ref (ref-node ref) (1+ (ref-index ref)))))
+    (setf (ref-key-ptr succ) new)))
+
+(defmethod (setf ref-key-ptr) (new (ref b-key-ref))
+  (if (ref-succession-p ref)
+      (setf (node-succ-ptr (ref-node ref)) new)
+      (setf (b-pred-ptr (ref-key ref)) new)))

@@ -4,8 +4,8 @@
 (defmethod b-node-find ((tree b-tree) node (to-find b-key))
   (for-keys ((k i) node)
     (when (key> k to-find)
-      (return i))
-    :finally (return i)))
+      (return (make-key-ref node i)))
+    :finally (return (make-key-ref node i))))
 
 (defmethod b-tree-walk ((tree b-tree) node-addr (to-find b-key) &optional parent-ref)
   "Walk until the node for insertion of key is found."

@@ -40,27 +40,50 @@
   (setf (aref vector index) key)
   vector)
 
-(defun vector-split (to-split into)
-  (let ((split (truncate (/ (length to-split) 2))))
+(defun vector-split-into-lmr (to-split into)
+  (let ((split (1- (truncate (length to-split) 2))))
     (setf (fill-pointer into) (- (length to-split) split 1))
-    (replace into to-split :start2 (1+ split))
-    (let ((middle (aref to-split split)))
+    (let ((mid (aref to-split split)))
+      (replace into to-split :start2 (1+ split))
       (setf (fill-pointer to-split) split)
-      (list to-split middle into))))
+      mid)))
 
 (defmethod b-node-insert ((tree b-tree) (node b-node) index key)
   (vector-insert (node-keys node) index key)
   (mark-dirty tree node))
 
-(defmethod b-node-split ((tree b-tree) (left-node b-node))
+(defmethod b-node-split-lmr ((tree b-tree) (left-node b-node))
   (let* ((right-node (make-new-b-node tree))
-         (split (vector-split (node-keys left-node) (node-keys right-node))))
-    (destructuring-bind (left-arr middle right-arr) split
-      (setf (node-keys left-node) left-arr)
-      (setf (node-keys right-node) right-arr)
-      (mark-dirty tree left-node)
-      (mark-dirty tree right-node)
-      (list left-node middle right-node))))
+         (middle (vector-split-into (node-keys left-node) (node-keys right-node))))
+    (mark-dirty tree left-node)
+    (setf (node-succ-ptr right-node) (node-addr left-node))
+    ;; (succ right node) <- (succ left node) <- middle <- left-node
+    (rotatef (node-succ-ptr right-node) (node-succ-ptr left-node) (b-pred-ptr middle))
+    (list left-node middle right-node)))
+
+(defun vector-merge (&rest to-merge)
+  (make-array (reduce #'+ (mapcar #'length to-merge))
+              :adjustable t
+              :fill-pointer t
+              :initial-contents (apply #'concatenate 'vector to-merge)))
+
+(defmethod b-node-distribute ((tree b-tree) mid-ref (lt b-node) (rt b-node))
+  (let* ((merge (vector-merge (node-keys lt)
+                              (list (ref-key mid-ref))
+                              (node-keys rt)))
+         (new-mid (vector-split-into-lmr merge (node-keys rt))))
+    (format t "distributing~%")
+    ;; left node
+    (adjust-array merge (tree-order tree))
+    (setf (node-keys lt) merge)
+    ;; unset old reference
+    (setf (ref-key-ptr  mid-ref) nil)
+    (setf (ref-key      mid-ref) new-mid)
+    ;; ancestor node
+    (setf (ref-key-ptr  mid-ref) (node-addr lt))
+    (setf (ref-succ-ptr mid-ref) (node-addr rt))
+    (break)
+    (mark-dirty tree lt rt (ref-node mid-ref))))
 
 (defmethod print-object ((node b-node) stream)
   (format stream "~A&(" (node-addr node))
@@ -77,6 +100,9 @@
       (when (key> k to-find)
         (return (make-key-ref node i)))
       :finally (return (make-key-ref node i)))))
+
+(defmethod set-root ((tree b-tree) (node b-node))
+  (setf (root-addr tree) (node-addr node)))
 
 (defmethod b-node-leafp ((node b-node))
   (null (node-succ-ptr node)))

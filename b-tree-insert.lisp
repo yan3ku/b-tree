@@ -1,16 +1,6 @@
 ;; b-tree-insert.lisp
 (in-package :b-tree)
 
-(defmethod split-node ((tree b-tree) (left-node b-node))
-  "Split node by moving right half of node elements to new page, the middle and
-right node should be linked to parent."
-  (destructuring-bind (left-node middle right-node)
-      (b-node-split tree left-node)
-    (setf (node-succ-ptr right-node) (node-addr left-node))
-    ;; (succ right node) <- (succ left node) <- middle <- left-node
-    (rotatef (node-succ-ptr right-node) (node-succ-ptr left-node) (b-pred-ptr middle))
-    (list left-node middle right-node)))
-
 (defmethod grow-tree ((tree b-tree) middle right-node)
   (let ((new-root (make-new-b-node tree)))
     (set-root tree new-root)
@@ -18,14 +8,12 @@ right node should be linked to parent."
     (setf (node-succ-ptr new-root) (node-addr right-node))))
 
 (defun parent-insert (tree parent middle right-node)
-  (if (ref-succession-p parent)
-      (setf (node-succ-ptr (ref-node parent)) (node-addr right-node))
-      (setf (b-pred-ptr (ref-key parent))     (node-addr right-node)))
+  (setf (ref-key-ptr parent) (node-addr right-node))
   (b-node-insert tree (ref-node parent) (ref-index parent) middle))
 
-(defmethod b-tree-split-node (tree parent to-split)
+(defmethod b-tree-split-node ((tree b-tree) parent to-split)
   (destructuring-bind (left-node middle right-node)
-      (split-node tree to-split)
+      (b-node-split tree to-split)
     (declare (ignore left-node))
     (if (root-p tree to-split)
         (grow-tree tree middle right-node)
@@ -34,19 +22,52 @@ right node should be linked to parent."
 (defmethod b-tree-insert-rec :around ((tree b-tree) (key b-key) parent node-addr)
   (call-next-method tree key parent (read-node tree node-addr)))
 
+(defun right-non-full (tree parent)
+  "Return non full right node; if not possible nil"
+  (when (not (ref-succession-p parent))
+    (let ((right (read-node tree (ref-succ-ptr parent))))
+      (when (not (node-fullp tree right))
+        right))))
+
+(defun left-non-full (tree parent)
+  "Return non full left node; if not possible nil"
+  (when (> (ref-index parent) 0)
+    (let ((left (read-node tree (ref-pred-ptr parent))))
+      (when (not (node-fullp tree left))
+        left))))
+
+(defmethod b-tree-compensation ((tree b-tree) parent node)
+  "Distribute if there is non full right or left node, return T on success NIL if compensation is not possible"
+  (if-let ((right (right-non-full tree parent)))
+    (progn
+      (b-node-distribute tree parent node right)
+      t)
+    (when-let ((left (left-non-full tree parent)))
+      (progn
+        (b-node-distribute tree (ref-pred-key parent) left node)
+        t))))
+
 (defmethod b-tree-insert-rec ((tree b-tree) (key b-key) parent node)
-  (when (node-fullp tree node)
-    (b-tree-split-node tree parent node)
-    (write-dirty tree)
-    (if parent
-        (setf node (ref-node parent))
-        (setf node (read-node tree (root-addr tree))))
-    (setf parent nil))
-  (let* ((found (b-node-find tree node key))
-         (found-ref (make-key-ref node found)))
+  (let ((move-up nil))
+    (when (node-fullp tree node)
+      (when (and (ref-p parent) (b-node-leafp node)
+                 ;; try first
+                 (not (setf move-up (b-tree-compensation tree parent node))))
+        (format t "splitting~%")
+        (break)
+        (b-tree-split-node tree parent node)
+        (setf move-up t)
+        ))
+    (when move-up
+      (write-dirty tree)
+      (setf node (if parent
+                     (ref-node parent)
+                     (read-node tree (root-addr tree))))
+      (setf parent nil)))
+  (let* ((found (b-node-find tree node key)))
     (if (b-node-leafp node)
-        (b-node-insert tree node found key)
-        (b-tree-insert-rec tree key found-ref (ref-key-ptr found-ref)))))
+        (b-node-insert tree node (ref-index found) key)
+        (b-tree-insert-rec tree key found (ref-key-ptr found)))))
 
 (defmethod b-tree-insert ((tree b-tree) (key b-key))
   (b-tree-insert-rec tree key nil (root-addr tree)))

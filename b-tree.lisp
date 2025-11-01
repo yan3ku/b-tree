@@ -61,9 +61,5 @@
                                      :record-file (concatenate 'string name ".r"))))
     tree))
 
-(defmethod set-root ((tree b-tree) (node b-node))
-  (setf (root-addr tree) (node-addr node)))
-
-
 (defmethod root-p ((tree b-tree) node)
   (= (node-addr node) (root-addr tree)))

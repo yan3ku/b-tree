@@ -30,7 +30,7 @@
            #:page-nr #:page-off))
 
 (defpackage #:b-tree
-  (:use #:cl #:pager #:record)
+  (:use #:cl #:pager #:record #:alexandria)
   (:export #:b-tree
            #:tree-root
            #:make-b-tree

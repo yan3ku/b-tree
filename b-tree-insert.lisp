@@ -50,14 +50,11 @@
 (defmethod b-tree-insert-rec ((tree b-tree) (key b-key) parent node)
   (let ((move-up nil))
     (when (node-fullp tree node)
-      (when (and (ref-p parent) (b-node-leafp node)
-                 ;; try first
-                 (not (setf move-up (b-tree-compensation tree parent node))))
-        (format t "splitting~%")
-        (break)
+      (when (and (ref-p parent) (b-node-leafp node))
+        (setf move-up (b-tree-compensation tree parent node)))
+      (unless move-up
         (b-tree-split-node tree parent node)
-        (setf move-up t)
-        ))
+        (setf move-up t)))
     (when move-up
       (write-dirty tree)
       (setf node (if parent

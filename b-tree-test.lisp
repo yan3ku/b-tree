@@ -18,7 +18,7 @@
         (close-b-tree tree :delete t)))))
 
 (test split-test
-  (for-all ((test (gen-list :length (gen-integer :min 3 :max 100))))
+  (for-all ((test (gen-list :length (gen-integer :min 3 :max 10000))))
     (let ((a (make-array (length test) :initial-contents test :fill-pointer (length test)))
           (b (make-array (length test) :fill-pointer 0)))
       (let ((m (b-tree::vector-split-into a b)))
@@ -27,7 +27,7 @@
 (test insertion-test
   (with-tree (tree "b-tree-test" :order 5)
     (let ((expected
-            (loop for i from 10 to 1000 by 10 collect i do
+            (loop for i from 10 to 100000 by 10 collect i do
               (b-tree-insert tree (b-tree::make-b-key i)))))
       (b-tree::b-tree-print tree)
       (let ((result nil))

@@ -21,19 +21,23 @@
   (for-all ((test (gen-list :length (gen-integer :min 3 :max 10000))))
     (let ((a (make-array (length test) :initial-contents test :fill-pointer (length test)))
           (b (make-array (length test) :fill-pointer 0)))
-      (let ((m (b-tree::vector-split-into a b)))
+      (let ((m (b-tree::vector-split-into-lmr a b)))
         (is (equalp test (concatenate 'list a (list m) b)))))))
 
 (test insertion-test
-  (with-tree (tree "b-tree-test" :order 5)
+  (with-tree (tree "b-tree-test" :order 10)
     (let ((expected
-            (loop for i from 10 to 100000 by 10 collect i do
-              (b-tree-insert tree (b-tree::make-b-key i)))))
+            (loop for i from 0 to 10000
+                  for r = (random 100000)
+                  collect r do
+                    (b-tree-insert tree (b-tree::make-b-key r)))))
       (b-tree::b-tree-print tree)
       (let ((result nil))
         (b-tree::b-tree-traverse tree (b-tree::root-addr tree)
                                  (lambda (key) (push (b-tree::b-key key) result)))
-        (is (equal (reverse expected) result))))))
+        (is (equal (sort expected #'>) result)))
+      (format t "~%compensation: ~A~%" (b-tree::compensation-count tree))
+      (format t "split ~A~%" (b-tree::split-count tree)))))
 
 ;; (defclass foo ()
 ;;   ((a)))

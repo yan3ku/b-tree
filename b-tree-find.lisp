@@ -2,10 +2,22 @@
 (in-package :b-tree)
 
 (defmethod b-node-find ((tree b-tree) node (to-find b-key))
-  (for-keys ((k i) node)
-    (when (key> k to-find)
-      (return (make-key-ref node i)))
-    :finally (return (make-key-ref node i))))
+  (let* ((key-count (node-keys-count node))
+         (keys (node-keys node))
+         (low 0)
+         (high (1- key-count))
+         (result (make-key-ref node (node-keys-count node))))
+    (loop
+      (when (> low high)
+        (return result))
+      (let* ((mid (floor (+ low high) 2))
+             (mid-key (aref keys mid)))
+        (cond
+          ((key> mid-key to-find)
+           (setf result (make-key-ref node mid))
+           (setf high (1- mid)))
+          ((not (key> mid-key to-find))
+           (setf low (1+ mid))))))))
 
 (defmethod b-tree-walk ((tree b-tree) node-addr (to-find b-key) &optional parent-ref)
   "Walk until the node for insertion of key is found."

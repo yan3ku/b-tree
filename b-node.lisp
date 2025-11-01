@@ -31,6 +31,9 @@
 (defmethod node-fullp ((tree b-tree) (node b-node))
   (<= (tree-order tree) (node-keys-count node)))
 
+(defmethod node-2-left-empty-p ((tree b-tree) (node b-node))
+  (>= 2 (- (tree-order tree) (node-keys-count node))))
+
 (defmethod node-keys-count ((node b-node))
   (length (node-keys node)))
 
@@ -78,6 +81,10 @@
     ;;   - 2&(40 50 60 100)
     ;;   - 4&(300 400 500)
     ;; inserting -20 will redistribute with the same amount of keys in left node....
+    ;; (format t "distributing~%")
+    ;; (print mid-ref)
+    ;; (print lt)
+    ;; (print rt)
     (when (= split-point (node-keys-count lt))
       (decf split-point))
     (let ((new-mid (vector-split-into-lmr merge (node-keys rt) split-point)))
@@ -93,7 +100,17 @@
       (setf (ref-key-ptr  mid-ref) (node-addr lt))
       (setf (ref-succ-ptr mid-ref) (node-addr rt))
 
-      (mark-dirty tree lt rt (ref-node mid-ref)))))
+      ;; (terpri)
+      ;; (format t "------------")
+      ;; (terpri)
+      ;; (format t "new ~A~%" new-mid)
+      ;; (print lt)
+      ;; (print rt)
+      ;; (terpri)
+      ;; (format t "=================")
+      ;; (terpri)
+      (mark-dirty tree lt rt (ref-node mid-ref))
+      )))
 
 (defmethod print-object ((node b-node) stream)
   (format stream "~A&(" (node-addr node))

@@ -15,7 +15,13 @@
    (dirty
     :initform '()
     :accessor tree-dirty-list
-    :documentation "List of changed nodes that should be written to disk."))
+    :documentation "List of changed nodes that should be written to disk.")
+   (compensation-count
+    :initform 0
+    :accessor compensation-count)
+   (split-count
+    :initform 0
+    :accessor split-count))
   (:documentation "B-tree root"))
 
 (defmacro with-tree ((var name &key order delete) &body body)

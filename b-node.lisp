@@ -81,15 +81,9 @@
     ;;   - 2&(40 50 60 100)
     ;;   - 4&(300 400 500)
     ;; inserting -20 will redistribute with the same amount of keys in left node....
-    ;; (format t "distributing~%")
-    ;; (print mid-ref)
-    ;; (print lt)
-    ;; (print rt)
-    (when (= split-point (node-keys-count lt))
-      (decf split-point))
+    ;; (when (= split-point (node-keys-count lt))
+    ;;   (decf split-point))
     (let ((new-mid (vector-split-into-lmr merge (node-keys rt) split-point)))
-      ;; (format t "distributing~%")
-      ;; (break)
       ;; left node
       (adjust-array merge (tree-order tree))
       (setf (node-keys lt) merge)
@@ -100,17 +94,7 @@
       (setf (ref-key-ptr  mid-ref) (node-addr lt))
       (setf (ref-succ-ptr mid-ref) (node-addr rt))
 
-      ;; (terpri)
-      ;; (format t "------------")
-      ;; (terpri)
-      ;; (format t "new ~A~%" new-mid)
-      ;; (print lt)
-      ;; (print rt)
-      ;; (terpri)
-      ;; (format t "=================")
-      ;; (terpri)
-      (mark-dirty tree lt rt (ref-node mid-ref))
-      )))
+      (mark-dirty tree lt rt (ref-node mid-ref)))))
 
 (defmethod print-object ((node b-node) stream)
   (format stream "~A&(" (node-addr node))
@@ -128,8 +112,8 @@
         (return (make-key-ref node i)))
       :finally (return (make-key-ref node i)))))
 
-(defmethod set-root ((tree b-tree) (node b-node))
-  (setf (root-addr tree) (node-addr node)))
-
 (defmethod b-node-leafp ((node b-node))
   (null (node-succ-ptr node)))
+
+(defmethod set-root ((tree b-tree) (node b-node))
+  (setf (root-addr tree) (node-addr node)))

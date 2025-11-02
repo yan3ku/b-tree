@@ -32,26 +32,3 @@
         (page-write-i4 (encode-pointer record-ptr))
         (page-write-i4 (encode-pointer pred-ptr)))
       :finally (return i))))
-
-;; (defun b-print (tree)
-;;   (let ((root-addr (node-addr (tree-root tree))))
-;;     (format t "--- B-TREE PRINT START ---~%")
-;;     (b-print-node root-addr 0)
-;;     (format t "--- B-TREE PRINT END ---~%")))
-
-;; (defun b-print-node (node-addr depth)
-;;   (let ((node (read-node node-addr)))
-;;     (format t "~V@T[DEPTH ~D] NODE ADDRESS: ~D, KEYS (~D): "
-;;             (* depth 4) depth node-addr (length (node-keys node)))
-
-;;     (loop for key-obj across (node-keys node) do
-;;       (format t "~D " (b-key key-obj)))
-;;     (format t "~%")
-
-;;     ;; TODO: print values
-;;     ;; HERE
-;;     ;;
-
-;;     (loop for key-obj across (node-keys node) do
-;;       (b-print-node (b-pred key-obj) (1+ depth)))
-;;     (b-print-node (node-succ node) (1+ depth))))

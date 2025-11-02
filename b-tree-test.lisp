@@ -25,31 +25,15 @@
         (is (equalp test (concatenate 'list a (list m) b)))))))
 
 (test insertion-test
-  (with-tree (tree "b-tree-test" :order 10)
+  (with-tree (tree "b-tree-test" :order 10 :delete t)
     (let ((expected
             (loop for i from 0 to 10000
                   for r = (random 100000)
                   collect r do
-                    (b-tree-insert tree (b-tree::make-b-key r)))))
-      (b-tree::b-tree-print tree)
+                    (b-tree-insert tree (make-b-key r)))))
+      (print tree)
       (let ((result nil))
-        (b-tree::b-tree-traverse tree (b-tree::root-addr tree)
-                                 (lambda (key) (push (b-tree::b-key key) result)))
+        (b-tree-inorder-map tree
+                            (lambda (key) (push (b-key key) result)))
         (is (equal (sort expected #'>) result)))
-      (format t "~%compensation: ~A~%" (b-tree::compensation-count tree))
-      (format t "split ~A~%" (b-tree::split-count tree)))))
-
-;; (defclass foo ()
-;;   ((a)))
-
-;; (defmethod foo-do2 ((f foo))
-;;   (format t "the original foo-do2"))
-
-;; (defmethod foo-do ((f foo))
-;;   (foo-do2 f))
-
-;; (defclass bar (foo)
-;;   ())
-
-;; (defmethod foo-do2 ((f bar))
-;;   (format t "overwrite the original foo-do2"))
+      (show-stats tree t))))

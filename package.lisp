@@ -33,13 +33,17 @@
   (:use #:cl #:pager #:record #:alexandria)
   (:export #:b-tree
            #:tree-root
+           #:show-stats
            #:make-b-tree
            #:node-keys
-           #:b-tree-insert
            #:node-keys-count
            #:with-tree
            #:close-b-tree
-           #:tree-order))
+           #:tree-order
+           #:make-b-key
+           #:b-key
+           #:b-tree-inorder-map
+           #:b-tree-insert))
 
 (defpackage #:pager-test
   (:use #:cl #:fiveam #:pager))

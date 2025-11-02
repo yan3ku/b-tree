@@ -4,7 +4,7 @@
 (defvar +b-key-size+ (* 4 3) ;; 4-bytes * 3-fields (key, record, pred)
   "Size in bytes of b key on page")
 
-(defclass b-tree (pager)
+(defclass b-tree (pager stat-mixin)
   ((root-addr
     :initform 1
     :accessor root-addr)
@@ -15,20 +15,8 @@
    (dirty
     :initform '()
     :accessor tree-dirty-list
-    :documentation "List of changed nodes that should be written to disk.")
-   (compensation-count
-    :initform 0
-    :accessor compensation-count)
-   (split-count
-    :initform 0
-    :accessor split-count))
+    :documentation "List of changed nodes that should be written to disk."))
   (:documentation "B-tree root"))
-
-(defmacro with-tree ((var name &key order delete) &body body)
-  `(let ((,var (make-b-tree ,name ,order)))
-     (unwind-protect
-          (progn ,@body)
-       (close-b-tree ,var :delete ,delete))))
 
 (defun next-power-of-two (n)
   (expt 2 (ceiling (log n 2))))
@@ -55,17 +43,13 @@
 (defmethod close-b-tree ((tree b-tree) &key delete)
   (close-pager tree :delete delete))
 
+(defun make-b-tree (name &optional order)
+  (make-instance 'b-tree :order order
+                         :index-file  (concatenate 'string name ".i")
+                         :record-file (concatenate 'string name ".r")))
+
 (defmethod tree-root ((tree b-tree))
   (read-node tree (root-addr tree)))
-
-;; (defmethod slot-unbound (class (tree b-tree) (slot-name (eql 'root)))
-;;   (setf (tree-root tree) (make-b-node tree (root-addr tree))))
-
-(defun make-b-tree (name &optional order)
-  (let ((tree (make-instance 'b-tree :order order
-                                     :index-file  (concatenate 'string name ".i")
-                                     :record-file (concatenate 'string name ".r"))))
-    tree))
 
 (defmethod root-p ((tree b-tree) node)
   (= (node-addr node) (root-addr tree)))

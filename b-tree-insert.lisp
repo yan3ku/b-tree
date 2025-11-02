@@ -26,11 +26,9 @@
   (let ((move-up nil))
     (when (node-fullp tree node)
       (when (and (ref-p parent) (b-node-leafp node))
-        (setf move-up (b-tree-compensation tree parent node))
-        (when move-up (incf (compensation-count tree))))
+        (setf move-up (b-tree-compensation tree parent node)))
       (unless move-up
         (b-tree-split-node tree parent node)
-        (incf (split-count tree))
         (setf move-up t)))
     (when move-up
       (write-dirty tree)

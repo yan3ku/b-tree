@@ -19,7 +19,6 @@
                (:file "b-key")
                (:file "b-node")
                (:file "b-tree-stats")
-               (:file "b-tree-dirties")
                (:file "b-tree-aux")
                (:file "b-tree-io")
                (:file "b-tree-find")

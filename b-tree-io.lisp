@@ -44,3 +44,6 @@
 
 (defmethod b-tree-insert :after ((tree b-tree) (key b-key))
   (write-dirty tree))
+
+(defmethod b-tree-delete :after ((tree b-tree) (key b-key))
+  (write-dirty tree))

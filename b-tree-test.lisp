@@ -29,8 +29,9 @@
     (let ((expected
             (loop for i from 0 to 10000
                   for r = (random 100000)
-                  collect r do
-                    (b-tree-insert tree (make-b-key r)))))
+                  for insert = (multiple-value-list (b-tree-insert tree (make-b-key r)))
+                  when (car insert)
+                    collect (b-key (ref-key (cadr insert))))))
       (print tree)
       (let ((result nil))
         (b-tree-inorder-map tree

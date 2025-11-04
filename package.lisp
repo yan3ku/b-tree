@@ -38,6 +38,8 @@
            #:node-keys
            #:node-keys-count
            #:with-tree
+           #:ref-key
+           #:b-key
            #:close-b-tree
            #:tree-order
            #:make-b-key

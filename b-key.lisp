@@ -60,7 +60,7 @@
   (:documentation "Used to address b-key in context of node"))
 
 (defmethod ref-key ((ref b-key-ref))
-  (aref (node-keys (ref-node ref)) (ref-index ref)))
+  (and (not (ref-succession-p ref)) (aref (node-keys (ref-node ref)) (ref-index ref))))
 
 (defmethod (setf ref-key) (new (ref b-key-ref))
   (setf (aref (node-keys (ref-node ref)) (ref-index ref)) new))

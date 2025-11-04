@@ -2,8 +2,8 @@
 
 #+nil
 (progn
-  (setf *run-test-when-defined* t)
-  (setf *on-error* :debug))
+  (setf fiveam:*run-test-when-defined* t)
+  (setf fiveam:*on-error* :debug))
 
 (asdf:defsystem #:b-tree
   :description "Implementation of b-tree for database index use."

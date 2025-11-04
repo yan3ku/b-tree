@@ -13,11 +13,22 @@
       (let* ((mid (floor (+ low high) 2))
              (mid-key (aref keys mid)))
         (cond
+          ((key= mid-key to-find)
+           (return (make-key-ref node mid)))
           ((key> mid-key to-find)
            (setf result (make-key-ref node mid))
            (setf high (1- mid)))
           ((not (key> mid-key to-find))
            (setf low (1+ mid))))))))
+
+(defmethod b-tree-find ((tree b-tree) (to-find b-key) &optional (node-addr (root-addr tree)) parent)
+  (let* ((node (read-node tree node-addr))
+         (found (b-node-find tree node to-find)))
+    (if (and (ref-key found) (key= to-find (ref-key found)))
+        (values found parent)
+        (if (b-node-leafp node)
+            nil
+            (b-tree-find tree found to-find node)))))
 
 (defmethod b-tree-walk ((tree b-tree) node-addr (to-find b-key) &optional parent-ref)
   "Walk until the node for insertion of key is found."
@@ -38,10 +49,10 @@
 
     (for-keys ((k i) node)
       (when (b-pred-ptr k)
-        (b-tree-print tree (b-pred-ptr k) (1+ depth))))
+        (b-subtree-print stream tree (b-pred-ptr k) (1+ depth))))
 
     (when (node-succ-ptr node)
-      (b-subtree-print tree stream (node-succ-ptr node) (1+ depth)))))
+      (b-subtree-print stream tree (node-succ-ptr node) (1+ depth)))))
 
 (defmethod print-object ((tree b-tree) stream)
   (b-subtree-print stream tree (root-addr tree)))
@@ -52,7 +63,7 @@
   (let ((node (read-node tree node-addr)))
     (for-keys ((k i) node)
       (when (b-pred-ptr k)
-        (b-tree-traverse tree (b-pred-ptr k) callback))
+        (b-tree-inorder-map tree callback (b-pred-ptr k)))
       (funcall callback k))
     (when (node-succ-ptr node)
-      (b-tree-traverse tree (node-succ-ptr node) callback))))
+      (b-tree-inorder-map tree callback (node-succ-ptr node)))))

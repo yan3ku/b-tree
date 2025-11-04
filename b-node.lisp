@@ -51,9 +51,16 @@
       (setf (fill-pointer to-split) split)
       mid)))
 
+(defun vector-delete (vector index)
+  (replace vector vector :end2 index)
+  (replace vector vector :start1 index :start2 (1+ index))
+  (decf (fill-pointer vector))
+  vector)
+
 (defmethod b-node-insert ((tree b-tree) (node b-node) index key)
   (vector-insert (node-keys node) index key)
-  (mark-dirty tree node))
+  (mark-dirty tree node)
+  (make-key-ref node index))
 
 (defmethod b-node-split ((tree b-tree) (left-node b-node))
   (let* ((right-node (make-new-b-node tree))
@@ -96,6 +103,10 @@
 
       (mark-dirty tree lt rt (ref-node mid-ref)))))
 
+(defmethod b-node-delete-key ((tree b-tree) ref)
+  (vector-delete (node-keys (ref-node ref)) (ref-index ref))
+  (mark-dirty tree (ref-node ref)))
+
 (defmethod print-object ((node b-node) stream)
   (format stream "~A&(" (node-addr node))
   (let ((first nil))
@@ -105,15 +116,11 @@
       (prin1 (b-key key) stream)))
   (format stream ")"))
 
-(defmethod b-node-find ((tree b-tree) node-addr (to-find b-key))
-  (let ((node (read-node tree node-addr)))
-    (for-keys ((k i) node)
-      (when (key> k to-find)
-        (return (make-key-ref node i)))
-      :finally (return (make-key-ref node i)))))
-
 (defmethod b-node-leafp ((node b-node))
   (null (node-succ-ptr node)))
+
+(defmethod b-node-internalp ((node b-node))
+  (not (b-node-leafp node)))
 
 (defmethod set-root ((tree b-tree) (node b-node))
   (setf (root-addr tree) (node-addr node)))

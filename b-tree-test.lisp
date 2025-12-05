@@ -32,9 +32,39 @@
                   for insert = (multiple-value-list (b-tree-insert tree (make-b-key r)))
                   when (car insert)
                     collect (b-key (ref-key (cadr insert))))))
-      (print tree)
+      ;; (print tree)
       (let ((result nil))
         (b-tree-inorder-map tree
                             (lambda (key) (push (b-key key) result)))
         (is (equal (sort expected #'>) result)))
+      (show-stats tree t))))
+
+(test deletion-test
+  (with-tree (tree "b-tree-delete-test" :order 10 :delete t)
+    ;; Define the full set of keys for insertion (1 to 1000)
+    (let* ((initial-keys (loop for i from 1 to 1000 collect i))
+           ;; Define the subset of keys to delete (all even numbers)
+           (keys-to-delete (remove-if-not (lambda (x) (= (mod x 2) 0)) initial-keys))
+           ;; The expected keys remaining after deletion (all odd numbers)
+           ;; We ensure this list is sorted ascending for final comparison.
+           (expected-remaining (sort (set-difference initial-keys keys-to-delete :test 'equal) #'<)))
+
+      ;; 1. Insertion Phase: Populate the tree
+      (loop for k in initial-keys
+            do (b-tree-insert tree (make-b-key k)))
+
+      ;; 2. Deletion Phase: Delete the chosen subset
+      (loop for k in keys-to-delete
+            do (b-tree-delete tree (make-b-key k)))
+
+      ;; 3. Verification Phase: Check the keys remaining in the tree via inorder traversal
+      (let ((result-keys nil))
+        (b-tree-inorder-map tree
+                            ;; Keys are pushed to the head of the list, resulting in descending order.
+                            (lambda (key) (push (b-key key) result-keys)))
+
+        ;; To compare against the ascending 'expected-remaining' list, we reverse the map result.
+        ;; If the B-tree is correctly structured, the inorder map should produce sorted keys.
+        (is (equal expected-remaining (reverse result-keys))))
+      (print tree)
       (show-stats tree t))))

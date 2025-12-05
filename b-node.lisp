@@ -94,8 +94,6 @@
     ;;   - 2&(40 50 60 100)
     ;;   - 4&(300 400 500)
     ;; inserting -20 will redistribute with the same amount of keys in left node....
-    ;; (when (= split-point (node-keys-count lt))
-    ;;   (decf split-point))
     (let ((new-mid (vector-split-into-lmr merge (node-keys rt) split-point)))
       ;; left node
       (adjust-array merge (tree-order tree))
@@ -108,6 +106,19 @@
       (setf (ref-succ-ptr mid-ref) (node-addr rt))
 
       (mark-dirty tree lt rt (ref-node mid-ref)))))
+
+(defmethod b-node-merge ((tree b-tree) mid-ref (lt b-node) (rt b-node))
+  (let* ((merge (vector-merge (node-keys lt)
+                              (list (ref-key mid-ref))
+                              (node-keys rt))))
+    (setf (ref-key-ptr mid-ref) nil)
+    ;; the mid key is removed and it contains the pred pointer to lt
+    ;; so the rt is what remains, we reuse its page address here
+    (let ((new (make-b-node tree (node-addr rt))))
+      (setf (node-keys new) merge)
+      (b-node-delete-key tree mid-ref)
+      (mark-dirty tree new (ref-node mid-ref))
+      new)))
 
 (defmethod b-node-delete-key ((tree b-tree) ref)
   (vector-delete (node-keys (ref-node ref)) (ref-index ref))

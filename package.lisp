@@ -45,7 +45,8 @@
            #:make-b-key
            #:b-key
            #:b-tree-inorder-map
-           #:b-tree-insert))
+           #:b-tree-insert
+           #:b-tree-delete))
 
 (defpackage #:pager-test
   (:use #:cl #:fiveam #:pager))

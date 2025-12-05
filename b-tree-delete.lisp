@@ -16,7 +16,7 @@
       (b-node-delete-key tree to-del)
       (write-dirty tree)
       (unless (b-tree-underflow-compensation tree to-del-parent (ref-node to-del))
-        (format t "cant compensate")
+        (b-tree-merge tree to-del-parent (ref-node to-del))
         ;; merge
         )
       )))

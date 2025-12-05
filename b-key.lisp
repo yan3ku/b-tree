@@ -62,16 +62,17 @@
     :type fixnum
     :initarg :index
     :reader  ref-index))
-  (:documentation "Used to address b-key in context of node"))
+  (:documentation "Used to address b-key in context of node. use ref-key-ptr for the ptr"))
 
 (defmethod ref-key ((ref b-key-ref))
-  (and (not (ref-succession-p ref)) (aref (node-keys (ref-node ref)) (ref-index ref))))
+  (and (not (ref-succession-p ref))
+       (aref (node-keys (ref-node ref)) (ref-index ref))))
 
 (defmethod (setf ref-key) (new (ref b-key-ref))
   (setf (aref (node-keys (ref-node ref)) (ref-index ref)) new))
 
 (defmethod ref-succession-p ((ref b-key-ref))
-  "Check if reference points to the succession pointer"
+  "Check if reference points to the node succession pointer"
   (= (ref-index ref) (node-keys-count (ref-node ref))))
 
 (defun make-key-ref (node index)

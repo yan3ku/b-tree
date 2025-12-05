@@ -8,7 +8,11 @@
    (split-count
     :type fixnum
     :initform 0
-    :accessor split-count))
+    :accessor split-count)
+   (merge-count
+    :type fixnum
+    :initform 0
+    :accessor merge-count))
   (:documentation "Track statistics."))
 
 (defmethod show-stats ((object stat-mixin) (stream t))
@@ -23,3 +27,6 @@
 
 (defmethod b-tree-split-node :after ((tree b-tree) parent to-split)
   (incf (split-count tree)))
+
+(defmethod b-tree-merge :after ((tree b-tree) parent to-split)
+  (incf (merge-count tree)))

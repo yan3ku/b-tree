@@ -28,7 +28,26 @@
         (values found parent)
         (if (b-node-leafp node)
             nil
-            (b-tree-find tree found to-find node)))))
+            (b-tree-find tree to-find (ref-key-ptr found) found)))))
+
+(defmethod left-subtree-max ((tree b-tree) ref)
+  (assert (not (null (ref-key-ptr ref))))
+  (left-max-rec tree (ref-key-ptr ref) ref))
+
+(defmethod left-max-rec ((tree b-tree) node-addr parent)
+  (let ((node (read-node tree node-addr)))
+    (if (b-node-leafp node)
+        (values (make-key-ref node (1- (node-keys-count node))) parent)
+        (left-max-rec tree (node-succ-ptr node) (make-key-ref node (node-keys-count node))))))
+
+(defmethod right-min ((tree b-tree) ref)
+  (right-min-rec tree (ref-succ-ptr ref)))
+
+(defmethod right-min-rec ((tree b-tree) node-addr)
+  (let ((node (read-node tree node-addr)))
+    (if (b-node-leafp node)
+        (make-key-ref node 0)
+        (right-min-rec tree (node-pred-ptr node)))))
 
 (defmethod b-tree-walk ((tree b-tree) node-addr (to-find b-key) &optional parent-ref)
   "Walk until the node for insertion of key is found."

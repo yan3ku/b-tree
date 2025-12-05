@@ -20,6 +20,9 @@
     :documentation "Pointer to b-node page containing keys greater than the max key in this node"))
   (:documentation "B-tree node coresponding to one page"))
 
+(defmethod node-pred-ptr ((node b-node))
+  (b-pred-ptr (aref (node-keys node) 0)))
+
 (defmethod make-b-node ((tree b-tree) addr)
   (make-instance 'b-node :addr addr :keys (make-array (tree-order tree) :fill-pointer 0)))
 
@@ -33,6 +36,9 @@
 
 (defmethod node-2-left-empty-p ((tree b-tree) (node b-node))
   (>= 2 (- (tree-order tree) (node-keys-count node))))
+
+(defmethod node-underflow ((tree b-tree) (node b-node))
+  (> (/ (tree-order tree) 2) (node-keys-count node)))
 
 (defmethod node-keys-count ((node b-node))
   (length (node-keys node)))

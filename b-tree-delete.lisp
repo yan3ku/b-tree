@@ -1,21 +1,22 @@
 ;;; b-tree-delete.lisp
 (in-package :b-tree)
 
-(defun find-leaf-replacement (tree parent)
-  (if-let ((right (right-sibling tree parent)))
-    (make-key-ref right 0)
-    (when-let ((left (left-sibling tree parent)))
-      (make-key-ref left (node-keys-count left)))))
-
-
 (defmethod b-tree-delete ((tree b-tree) (key b-key))
-  (when-let ((found (b-tree-find tree key)))
-    (multiple-value-bind (ref parent)
+  (when-let ((found (multiple-value-list (b-tree-find tree key))))
+    (destructuring-bind (to-del to-del-parent)
         found
-      (cond
-        ((b-node-leafp (ref-node ref))
-         (b-node-delete-key tree ref))
-        ((b-node-internalp (ref-node ref))
-         (let ((replacement (find-leaf-replacement tree parent)))
-           (setf (ref-key ref) (ref-key replacement))
-           (b-node-delete-key tree replacement)))))))
+      (when (b-node-internalp (ref-node to-del))
+        (multiple-value-bind (max max-parent)
+            (left-subtree-max tree to-del)
+          (replace-key (ref-key to-del) (ref-key max))
+          (mark-dirty tree (ref-node to-del))
+          (setf to-del max)
+          (setf to-del-parent max-parent)))
+      (assert (b-node-leafp (ref-node to-del)))
+      (b-node-delete-key tree to-del)
+      (write-dirty tree)
+      (unless (b-tree-underflow-compensation tree to-del-parent (ref-node to-del))
+        (format t "cant compensate")
+        ;; merge
+        )
+      )))

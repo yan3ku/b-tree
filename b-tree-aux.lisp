@@ -29,6 +29,35 @@
     (when (not (node-2-left-empty-p tree left))
       left)))
 
+(defun enough-to-compensate (tree x)
+  (<= (tree-order tree) x))
+
+(defun right-non-underflow (tree parent node)
+  (when-let ((right (right-sibling tree parent)))
+    (when (enough-to-compensate tree
+                                (+ (node-keys-count node)
+                                   (node-keys-count right)))
+      right)))
+
+(defun left-non-underflow (tree parent node)
+  "Return non full left node; if not possible nil"
+  (when-let ((left (left-sibling tree parent)))
+    (when (enough-to-compensate tree
+                                (+ (node-keys-count node)
+                                   (node-keys-count left)))
+      left)))
+
+(defmethod b-tree-underflow-compensation ((tree b-tree) parent node)
+  "Distribute if there is non full right or left node, return T on success NIL if compensation is not possible"
+  (if-let ((right (right-non-underflow tree parent node)))
+    (values t (b-node-distribute tree parent node right))
+    (if-let ((left (left-non-underflow tree parent node)))
+      (values t (b-node-distribute tree (ref-pred-key parent) left node))
+      )))
+
+(defmethod b-tree-merge ((tree b-tree) parent node)
+  )
+
 (defmethod b-tree-compensation ((tree b-tree) parent node)
   "Distribute if there is non full right or left node, return T on success NIL if compensation is not possible"
   (if-let ((right (right-non-full tree parent)))

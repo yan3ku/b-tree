@@ -22,7 +22,8 @@
                (:file "b-tree-aux")
                (:file "b-tree-io")
                (:file "b-tree-find")
-               (:file "b-tree-insert"))
+               (:file "b-tree-insert")
+               (:file "b-tree-delete"))
   :in-order-to ((test-op (test-op #:b-tree/test))))
 
 

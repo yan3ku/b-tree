@@ -20,6 +20,11 @@
     :documentation "Pointer to b-node page with records lesser than key"))
   (:documentation "B-tree key that contains the pointer to value and predecessor records"))
 
+(defmethod replace-key ((k1 b-key) (k2 b-key))
+  "Replace the value and record pointer but leave the pred pointer. Used for deletion."
+  (setf (b-key k1) (b-key k2))
+  (setf (b-record-ptr k1) (b-record-ptr k2)))
+
 (defmacro for-keys ((key node) &body body)
   (let ((index) (key-var key))
     (when (listp key)
@@ -79,7 +84,7 @@
             (ref-node ref))))
 
 (defmethod ref-key-ptr ((ref b-key-ref))
-  "Return the referenced pointer."
+  "Return the referenced pointer by key (b-pred-ptr or succ-ptr for out of bound)."
   (if (ref-succession-p ref)
       (node-succ-ptr (ref-node ref))
       (b-pred-ptr (ref-key ref))))
@@ -90,10 +95,12 @@
 
 
 (defmethod ref-pred-key ((ref b-key-ref))
+  "Return reference to previous key itself."
   (make-key-ref (ref-node ref)
                 (1- (ref-index ref))))
 
 (defmethod ref-pred-ptr ((ref b-key-ref))
+  "Return reference to previous key node (index - 1)."
   (ref-key-ptr (ref-pred-key ref)))
 
 (defun ref-p (ref)

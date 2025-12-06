@@ -18,6 +18,12 @@
     :documentation "List of changed nodes that should be written to disk."))
   (:documentation "B-tree root"))
 
+(defmacro with-tree ((var name &key order delete) &body body)
+  `(let ((,var (make-b-tree ,name ,order)))
+     (unwind-protect
+          (progn ,@body)
+       (close-b-tree ,var :delete ,delete))))
+
 (defun next-power-of-two (n)
   (expt 2 (ceiling (log n 2))))
 

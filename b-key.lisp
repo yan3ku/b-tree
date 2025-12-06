@@ -18,10 +18,10 @@
     :initarg :pred-ptr
     :accessor b-pred-ptr
     :documentation "Pointer to b-node page with records lesser than key"))
-  (:documentation "B-tree key that contains the pointer to value and predecessor records"))
+  (:documentation "B-tree key that contains the pointer to record and predecessor records"))
 
 (defmethod replace-key ((k1 b-key) (k2 b-key))
-  "Replace the value and record pointer but leave the pred pointer. Used for deletion."
+  "Replace the key value and record pointer but leave the pred pointer. Used for deletion."
   (setf (b-key k1) (b-key k2))
   (setf (b-record-ptr k1) (b-record-ptr k2)))
 
@@ -62,21 +62,8 @@
     :type fixnum
     :initarg :index
     :reader  ref-index))
-  (:documentation "Used to address b-key in context of node. use ref-key-ptr for the ptr"))
+  (:documentation "Used to address b-key in context of node. use ref-ptr for the ptr"))
 
-(defmethod ref-key ((ref b-key-ref))
-  (and (not (ref-succession-p ref))
-       (aref (node-keys (ref-node ref)) (ref-index ref))))
-
-(defmethod (setf ref-key) (new (ref b-key-ref))
-  (setf (aref (node-keys (ref-node ref)) (ref-index ref)) new))
-
-(defmethod ref-succession-p ((ref b-key-ref))
-  "Check if reference points to the node succession pointer"
-  (= (ref-index ref) (node-keys-count (ref-node ref))))
-
-(defun make-key-ref (node index)
-  (make-instance 'b-key-ref :node node :index index))
 
 (defmethod print-object ((ref b-key-ref) stream)
   (print-unreadable-object (ref stream :type t)
@@ -84,34 +71,56 @@
             (ref-index ref)
             (ref-node ref))))
 
-(defmethod ref-key-ptr ((ref b-key-ref))
-  "Return the referenced pointer by key (b-pred-ptr or succ-ptr for out of bound)."
-  (if (ref-succession-p ref)
-      (node-succ-ptr (ref-node ref))
-      (b-pred-ptr (ref-key ref))))
-
-(defmethod ref-succ-ptr ((ref b-key-ref))
-  (ref-key-ptr (make-key-ref (ref-node ref)
-                             (1+ (ref-index ref)))))
-
-
-(defmethod ref-pred-key ((ref b-key-ref))
-  "Return reference to previous key itself."
-  (make-key-ref (ref-node ref)
-                (1- (ref-index ref))))
-
-(defmethod ref-pred-ptr ((ref b-key-ref))
-  "Return reference to previous key node (index - 1)."
-  (ref-key-ptr (ref-pred-key ref)))
-
 (defun ref-p (ref)
   (typep ref 'b-key-ref))
 
-(defmethod (setf ref-succ-ptr) (new (ref b-key-ref))
-  (let ((succ (make-key-ref (ref-node ref) (1+ (ref-index ref)))))
-    (setf (ref-key-ptr succ) new)))
+(defun make-ref (node index)
+  (make-instance 'b-key-ref :node node :index index))
 
-(defmethod (setf ref-key-ptr) (new (ref b-key-ref))
-  (if (ref-succession-p ref)
+(defmethod ref-key ((ref b-key-ref))
+  "Return the key value."
+  (and (not (ref-node-succ-p ref))
+       (aref (node-keys (ref-node ref)) (ref-index ref))))
+
+(defmethod ref-ptr ((ref b-key-ref))
+  "Return b-pred-ptr if reference points at b-key or node-succ-ptr when it's out of bounds."
+  (if (ref-node-succ-p ref)
+      (node-succ-ptr (ref-node ref))
+      (b-pred-ptr (ref-key ref))))
+
+(defmethod (setf ref-key) (new (ref b-key-ref))
+  "Put the new key at the place referenced by ref."
+  (setf (aref (node-keys (ref-node ref)) (ref-index ref)) new))
+
+(defmethod ref-node-succ-p ((ref b-key-ref))
+  "Check if reference points to the node succession pointer"
+  (= (ref-index ref) (node-keys-count (ref-node ref))))
+
+(defmethod ref-left ((ref b-key-ref))
+  "Return reference to left neightboor of the ref (the smaller key ref)."
+  (make-ref (ref-node ref)
+            (1- (ref-index ref))))
+
+(defmethod ref-right ((ref b-key-ref))
+  "Return reference to right neightboor of the ref (the greater key ref)."
+  (make-ref (ref-node ref)
+            (1+ (ref-index ref))))
+
+(defmethod ref-left-ptr ((ref b-key-ref))
+  "The ref-ptr of left neightboor"
+  (ref-ptr (ref-left ref)))
+
+(defmethod ref-right-ptr ((ref b-key-ref))
+  "The ref-ptr of right neighboor"
+  (ref-ptr (ref-right ref)))
+
+(defmethod (setf ref-ptr) (new (ref b-key-ref))
+  "Set pointer to the lower node."
+  (if (ref-node-succ-p ref)
       (setf (node-succ-ptr (ref-node ref)) new)
       (setf (b-pred-ptr (ref-key ref)) new)))
+
+(defmethod (setf ref-right-ptr) (new (ref b-key-ref))
+  "Set the right neighboor lower node pointer."
+  (let ((succ (make-ref (ref-node ref) (1+ (ref-index ref)))))
+    (setf (ref-ptr succ) new)))

@@ -12,6 +12,7 @@
   :version "0.0.1"
   :serial t
   :components ((:file "package")
+               (:file "vector-aux")
                (:file "record")
                (:file "pager")
                (:file "pager-io")
@@ -19,8 +20,10 @@
                (:file "b-key")
                (:file "b-node")
                (:file "b-tree-stats")
-               (:file "b-tree-aux")
                (:file "b-tree-io")
+               (:file "b-node-aux")
+               (:file "b-node-op")
+               (:file "b-tree-compensation")
                (:file "b-tree-find")
                (:file "b-tree-insert")
                (:file "b-tree-delete"))

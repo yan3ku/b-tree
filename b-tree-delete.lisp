@@ -1,6 +1,12 @@
 ;;; b-tree-delete.lisp
 (in-package :b-tree)
 
+(defmethod b-tree-merge ((tree b-tree) parent node)
+  (if-let ((right (right-underflow tree parent node)))
+    (b-node-merge tree parent node right)
+    (when-let ((left (left-underflow tree parent node)))
+      (b-node-merge tree (ref-left parent) left node))))
+
 (defmethod b-tree-delete ((tree b-tree) (key b-key))
   (when-let ((found (multiple-value-list (b-tree-find tree key))))
     (destructuring-bind (to-del to-del-parent)

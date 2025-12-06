@@ -42,7 +42,7 @@
 (test deletion-test
   (with-tree (tree "b-tree-delete-test" :order 10 :delete t)
     ;; Define the full set of keys for insertion (1 to 1000)
-    (let* ((initial-keys (loop for i from 1 to 1000 collect i))
+    (let* ((initial-keys (loop for i from 1 to 10000 collect i))
            ;; Define the subset of keys to delete (all even numbers)
            (keys-to-delete (remove-if-not (lambda (x) (= (mod x 2) 0)) initial-keys))
            ;; The expected keys remaining after deletion (all odd numbers)
@@ -66,5 +66,5 @@
         ;; To compare against the ascending 'expected-remaining' list, we reverse the map result.
         ;; If the B-tree is correctly structured, the inorder map should produce sorted keys.
         (is (equal expected-remaining (reverse result-keys))))
-      (print tree)
+      ;; (print tree)
       (show-stats tree t))))

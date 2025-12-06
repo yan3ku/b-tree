@@ -8,7 +8,7 @@
     (setf (node-succ-ptr new-root) (node-addr right-node))))
 
 (defun parent-insert (tree parent middle right-node)
-  (setf (ref-key-ptr parent) (node-addr right-node))
+  (setf (ref-ptr parent) (node-addr right-node))
   (b-node-insert tree (ref-node parent) (ref-index parent) middle))
 
 (defmethod b-tree-split-node ((tree b-tree) parent to-split)
@@ -41,7 +41,7 @@
         (values nil found)
         (if (b-node-leafp node)
             (values t (b-node-insert tree node (ref-index found) key))
-            (b-tree-insert-rec tree key found (ref-key-ptr found))))))
+            (b-tree-insert-rec tree key found (ref-ptr found))))))
 
 (defmethod b-tree-insert ((tree b-tree) (key b-key))
   (b-tree-insert-rec tree key nil (root-addr tree)))

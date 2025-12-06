@@ -18,6 +18,19 @@
     :documentation "List of changed nodes that should be written to disk."))
   (:documentation "B-tree root"))
 
+(defmethod b-subtree-print (stream (tree b-tree) node-addr &optional (depth 0))
+  (let ((node (read-node tree node-addr)))
+    (format t "~&~V@T- " (* depth 2))
+    (prin1 node)
+    (for-keys ((k i) node)
+      (when (b-pred-ptr k)
+        (b-subtree-print stream tree (b-pred-ptr k) (1+ depth))))
+    (when (node-succ-ptr node)
+      (b-subtree-print stream tree (node-succ-ptr node) (1+ depth)))))
+
+(defmethod print-object ((tree b-tree) stream)
+  (b-subtree-print stream tree (root-addr tree)))
+
 (defmacro with-tree ((var name &key order delete) &body body)
   `(let ((,var (make-b-tree ,name ,order)))
      (unwind-protect

@@ -13,7 +13,7 @@
         found
       (when (b-node-internalp (ref-node to-del))
         (multiple-value-bind (max max-parent)
-            (left-subtree-max tree to-del)
+            (left-subtree-max-key tree to-del)
           (replace-key (ref-key to-del) (ref-key max))
           (mark-dirty tree (ref-node to-del))
           (setf to-del max)
@@ -22,7 +22,4 @@
       (b-node-delete-key tree to-del)
       (write-dirty tree)
       (unless (b-tree-underflow-compensation tree to-del-parent (ref-node to-del))
-        (b-tree-merge tree to-del-parent (ref-node to-del))
-        ;; merge
-        )
-      )))
+        (b-tree-merge tree to-del-parent (ref-node to-del))))))

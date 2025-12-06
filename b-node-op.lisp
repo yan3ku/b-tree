@@ -56,3 +56,22 @@
   (vector-insert (node-keys node) index key)
   (mark-dirty tree node)
   (make-ref node index))
+
+(defmethod left-subtree-max-key ((tree b-tree) ref)
+  (assert (not (null (ref-ptr ref))))
+  (left-max-rec tree (ref-ptr ref) ref))
+
+(defmethod left-max-rec ((tree b-tree) node-addr parent)
+  (let ((node (read-node tree node-addr)))
+    (if (b-node-leafp node)
+        (values (make-ref node (1- (node-keys-count node))) parent)
+        (left-max-rec tree (node-succ-ptr node) (make-ref node (node-keys-count node))))))
+
+(defmethod right-subtree-min-key ((tree b-tree) ref)
+  (right-min-rec tree (ref-right-ptr ref)))
+
+(defmethod right-min-rec ((tree b-tree) node-addr)
+  (let ((node (read-node tree node-addr)))
+    (if (b-node-leafp node)
+        (make-ref node 0)
+        (right-min-rec tree (node-pred-ptr node)))))

@@ -66,5 +66,5 @@
         ;; To compare against the ascending 'expected-remaining' list, we reverse the map result.
         ;; If the B-tree is correctly structured, the inorder map should produce sorted keys.
         (is (equal expected-remaining (reverse result-keys))))
-      ;; (print tree)
+      (print tree)
       (show-stats tree t))))

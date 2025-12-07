@@ -66,5 +66,11 @@
         ;; To compare against the ascending 'expected-remaining' list, we reverse the map result.
         ;; If the B-tree is correctly structured, the inorder map should produce sorted keys.
         (is (equal expected-remaining (reverse result-keys))))
-      (print tree)
+      ;; (print tree)
       (show-stats tree t))))
+
+#+nil
+(progn
+  (setf *t* (make-b-tree "test" 5))
+  (loop :for x :from 0 :to 400 by 10 do (b-tree-insert *t* (make-b-key x)))
+  (close-b-tree *t*))

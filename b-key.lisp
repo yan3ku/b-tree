@@ -25,15 +25,6 @@
   (setf (b-key k1) (b-key k2))
   (setf (b-record-ptr k1) (b-record-ptr k2)))
 
-(defmacro for-keys ((key node) &body body)
-  (let ((index) (key-var key))
-    (when (listp key)
-      (setf index   (cadr key)
-            key-var (car  key)))
-    `(loop ,@(if (listp key) `(:for ,index :from 0))
-           :for ,key-var :across (node-keys ,node) :do
-           ,@body)))
-
 (defmethod make-b-key (key)
   (make-instance 'b-key :key key :record-ptr nil))
 

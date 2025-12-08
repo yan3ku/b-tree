@@ -2,7 +2,7 @@
 
 (defpackage #:record
   (:use #:cl)
-  (:export #:read-record  #:write-record
+  (:export #:read-record-from-stream  #:write-record-to-stream
            #:seq-write-i4 #:seq-read-i4
            #:make-record
            #:make-random-record))
@@ -22,7 +22,8 @@
            #:page-write-at
            #:header-addr
            #:new-page-addr
-           ;; #:read-record #:write-record
+           #:new-record-addr
+           #:read-record #:write-record
            #:make-page-buf
            #:read-page   #:write-page
            #:with-in-page #:with-out-page

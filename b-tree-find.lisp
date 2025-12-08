@@ -27,7 +27,7 @@
     (if (and (ref-key found) (key= to-find (ref-key found)))
         (values found parent)
         (if (b-node-leafp node)
-            nil
+            (values nil nil)
             (b-tree-find tree to-find (ref-ptr found) found)))))
 
 (defmethod b-tree-inorder-map ((tree b-tree) &optional (callback #'print) (node-addr (root-addr tree)))

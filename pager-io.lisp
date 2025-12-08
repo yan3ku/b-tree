@@ -35,6 +35,7 @@
      ,@body
      (write-page ,pager ,page-nr *page-buffer*)))
 
+
 (defmacro with-in-page (pager page-nr &body body)
   `(let ((*page-buffer* (read-page ,pager ,page-nr)))
      ,@body))
@@ -42,15 +43,27 @@
 (defmethod read-header ((p pager))
   (when (> 8 (file-length (index-file p)))
     (error "file doesn't have header"))
-  (setf (page-size p) 8)
+  (setf (page-size p) 12)
   (with-in-page p 0
-    (setf (page-size  p) (page-read-i4))
-    (setf (page-count p) (page-read-i4))))
+    (setf (page-size    p) (page-read-i4))
+    (setf (page-count   p) (page-read-i4))
+    (setf (record-count p) (page-read-i4))))
 
 (defmethod write-header ((p pager))
   (with-out-page p 0
     (page-write-i4 (page-size  p))
-    (page-write-i4 (page-count p))))
+    (page-write-i4 (page-count p))
+    (page-write-i4 (record-count p))))
+
+(defmethod write-record ((p pager) record addr)
+  (file-position (record-file p) (record-byte p addr))
+  (record:write-record-to-stream record (record-file p))
+  addr)
+
+(defmethod read-record ((p pager) addr)
+  (file-position (record-file p) (record-byte p addr))
+  (record:read-record-from-stream (record-file p)))
+
 
 (defmethod initialize-instance :after ((p pager) &key index-file record-file)
   (let* ((open-opts `(:direction :io
@@ -61,6 +74,7 @@
     (setf (index-file p)  (apply #'open index-file  open-opts))
     (if (page-size p)
         (progn
+          (setf (record-count p) 0)
           (setf (page-count p) (1+ (header-addr p))) ;  page 0 is header
           (write-header p))
         (read-header p))))

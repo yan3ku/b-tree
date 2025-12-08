@@ -8,9 +8,9 @@
       (b-node-merge tree (ref-left parent) left node))))
 
 (defmethod b-tree-delete ((tree b-tree) (key b-key))
-  (when-let ((found (multiple-value-list (b-tree-find tree key))))
-    (destructuring-bind (to-del to-del-parent)
-        found
+  (multiple-value-bind (to-del to-del-parent)
+      (b-tree-find tree key)
+    (when to-del
       (when (b-node-internalp (ref-node to-del))
         (multiple-value-bind (max max-parent)
             (left-subtree-max-key tree to-del)
@@ -19,7 +19,9 @@
           (setf to-del max)
           (setf to-del-parent max-parent)))
       (assert (b-node-leafp (ref-node to-del)))
-      (b-node-delete-key tree to-del)
-      (write-dirty tree)
-      (unless (b-tree-underflow-compensation tree to-del-parent (ref-node to-del))
-        (b-tree-merge tree to-del-parent (ref-node to-del))))))
+      (prog1 (ref-key to-del)
+        (b-node-delete-key tree to-del)
+        (write-dirty tree)
+        (unless (= (node-addr (ref-node to-del)) (root-addr tree))
+          (unless (b-tree-underflow-compensation tree to-del-parent (ref-node to-del))
+            (b-tree-merge tree to-del-parent (ref-node to-del))))))))

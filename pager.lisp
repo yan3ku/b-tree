@@ -21,7 +21,10 @@
     :documentation "The size of one page")
    (page-count
     :accessor page-count
-    :documentation "The number of currently managed pages"))
+    :documentation "The number of currently managed pages")
+   (record-count
+    :accessor record-count
+    :documentation "The number of records managed"))
   (:documentation "Disk access layer implementing block reads and writes for B-tree nodes"))
 
 (defmacro page-numer  (addr) `(ldb (byte 16 0)  ,addr))
@@ -35,18 +38,14 @@
   "Return address of byte under page with added offset"
   (+ (page-byte0 addr p) (page-offset addr)))
 
+(defmethod record-byte ((p pager) addr)
+  (* 4 addr))
+
 (defmethod make-page-buffer ((p pager))
   (make-array (page-size p) :element-type '(unsigned-byte 8) :fill-pointer 0))
 
 (defmethod new-page-addr ((p pager))
   (incf (page-count p)))
 
-;; (defun write-record (record &optional addr)
-;;   (when addr
-;;     (assert (file-position (index-file *pager*) (byte-loc addr))))
-;;   (record:write-record record (record-file *pager*)))
-
-;; (defun read-record (&optional addr)
-;;   (when addr
-;;     (assert (file-position (index-file *pager*) (byte-loc addr))))
-;;   (record:read-record (record-file *pager*)))
+(defmethod new-record-addr ((p pager))
+  (incf (record-count p)))

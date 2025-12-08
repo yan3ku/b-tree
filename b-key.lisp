@@ -28,6 +28,9 @@
 (defmethod make-b-key (key)
   (make-instance 'b-key :key key :record-ptr nil))
 
+(defmethod make-b-key-record (tree key rc)
+  (make-instance 'b-key :key key :record-ptr (write-record tree rc (new-record-addr tree))))
+
 (defmethod key> ((a b-key) (b b-key))
   (> (b-key a) (b-key b)))
 
@@ -42,7 +45,9 @@
 
 (defmethod print-object ((key b-key) stream)
   (print-unreadable-object (key stream :type t)
-    (prin1 (b-key key) stream)))
+    (prin1 (b-key key) stream)
+    (format stream ", ")
+    (prin1 (b-record-ptr key) stream)))
 
 (defclass b-key-ref ()
   ((node

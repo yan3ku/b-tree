@@ -37,7 +37,7 @@
     (when (node-succ-ptr node)
       (b-subtree-print stream tree (node-succ-ptr node) (1+ depth)))))
 
-(defmethod b-tree-print ((tree b-tree) stream)
+(defmethod b-tree-print ((tree b-tree) &optional (stream t))
   (b-subtree-print stream tree (root-addr tree)))
 
 (defmethod print-object ((tree b-tree) stream)

@@ -88,6 +88,9 @@
   "Put the new key at the place referenced by ref."
   (setf (aref (node-keys (ref-node ref)) (ref-index ref)) new))
 
+(defmethod ref-node-addr ((ref b-key-ref))
+  (node-addr (ref-node ref)))
+
 (defmethod ref-node-succ-p ((ref b-key-ref))
   "Check if reference points to the node succession pointer"
   (= (ref-index ref) (node-keys-count (ref-node ref))))

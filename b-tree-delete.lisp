@@ -22,6 +22,10 @@
       (prog1 (ref-key to-del)
         (b-node-delete-key tree to-del)
         (write-dirty tree)
-        (unless (= (node-addr (ref-node to-del)) (root-addr tree))
+        (unless (root-p tree (ref-node to-del))
           (unless (b-tree-underflow-compensation tree to-del-parent (ref-node to-del))
-            (b-tree-merge tree to-del-parent (ref-node to-del))))))))
+            (b-tree-merge tree to-del-parent (ref-node to-del))
+            ;; make the merged node root if there is no keys in root
+            (when (and (root-p tree (ref-node to-del-parent))
+                       (= 0 (node-keys-count (ref-node to-del-parent))))
+              (setf (root-addr tree) (ref-node-addr to-del)))))))))

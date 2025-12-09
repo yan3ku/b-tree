@@ -25,10 +25,10 @@
         (is (equalp test (concatenate 'list a (list m) b)))))))
 
 (test insertion-test
-  (with-tree (tree "b-tree-test" :order 10 :delete t)
+  (with-tree (tree "b-tree-test" :order 1000 :delete t)
     (let ((expected
-            (loop for i from 0 to 10000
-                  for r = (random 100000)
+            (loop for i from 0 to 100000
+                  for r = (random 1000000)
                   for insert = (multiple-value-list (b-tree-insert tree (make-b-key r)))
                   when (car insert)
                     collect (b-key (ref-key (cadr insert))))))

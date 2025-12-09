@@ -1,0 +1,161 @@
+-------------------------------
+Running test INSERTION-TEST .
+STAT:
+ TREE-ORDER: 10
+ PAGE-SIZE: 128
+ COMPENSATION-COUNT: 14129
+ READ-COUNT: 632512
+ WRITE-COUNT: 175685
+ SPLIT-COUNT: 12708
+ MERGE-COUNT: 0
+ Did 1 check.
+    Pass: 1 (100%)
+    Skip: 0 ( 0%)
+    Fail: 0 ( 0%)
+
+Evaluation took:
+  18.773 seconds of real time
+  18.578125 seconds of total run time (4.281250 user, 14.296875 system)
+  [ Real times consist of 0.035 seconds GC time, and 18.738 seconds non-GC time. ]
+  [ Run times consist of 0.031 seconds GC time, and 18.548 seconds non-GC time. ]
+  98.96% CPU
+  65,584,055,915 processor cycles
+  1,039,445,840 bytes consed
+-------------------------------
+Running test INSERTION-TEST .
+STAT:
+ TREE-ORDER: 100
+ PAGE-SIZE: 2048
+ COMPENSATION-COUNT: 7752
+ READ-COUNT: 313806
+ WRITE-COUNT: 121859
+ SPLIT-COUNT: 1118
+ MERGE-COUNT: 0
+ Did 1 check.
+    Pass: 1 (100%)
+    Skip: 0 ( 0%)
+    Fail: 0 ( 0%)
+
+Evaluation took:
+  11.515 seconds of real time
+  11.406250 seconds of total run time (4.593750 user, 6.812500 system)
+  [ Real times consist of 0.075 seconds GC time, and 11.440 seconds non-GC time. ]
+  [ Run times consist of 0.046 seconds GC time, and 11.361 seconds non-GC time. ]
+  99.05% CPU
+  40,227,423,128 processor cycles
+  2,684,440,976 bytes consed
+-------------------------------
+Running test INSERTION-TEST .
+STAT:
+ TREE-ORDER: 150
+ PAGE-SIZE: 2048
+ COMPENSATION-COUNT: 6328
+ READ-COUNT: 297065
+ WRITE-COUNT: 116401
+ SPLIT-COUNT: 731
+ MERGE-COUNT: 0
+ Did 1 check.
+    Pass: 1 (100%)
+    Skip: 0 ( 0%)
+    Fail: 0 ( 0%)
+
+Evaluation took:
+  12.434 seconds of real time
+  12.421875 seconds of total run time (6.468750 user, 5.953125 system)
+  [ Real times consist of 0.088 seconds GC time, and 12.346 seconds non-GC time. ]
+  [ Run times consist of 0.125 seconds GC time, and 12.297 seconds non-GC time. ]
+  99.90% CPU
+  43,438,406,865 processor cycles
+  3,222,396,192 bytes consed
+-------------------------------
+Running test INSERTION-TEST .
+STAT:
+ TREE-ORDER: 250
+ PAGE-SIZE: 4096
+ COMPENSATION-COUNT: 4728
+ READ-COUNT: 255681
+ WRITE-COUNT: 110600
+ SPLIT-COUNT: 435
+ MERGE-COUNT: 0
+ Did 1 check.
+    Pass: 1 (100%)
+    Skip: 0 ( 0%)
+    Fail: 0 ( 0%)
+
+Evaluation took:
+  14.441 seconds of real time
+  14.375000 seconds of total run time (8.609375 user, 5.765625 system)
+  [ Real times consist of 0.126 seconds GC time, and 14.315 seconds non-GC time. ]
+  [ Run times consist of 0.078 seconds GC time, and 14.297 seconds non-GC time. ]
+  99.54% CPU
+  50,449,529,732 processor cycles
+  4,879,049,360 bytes consed
+-------------------------------
+Running test INSERTION-TEST .
+STAT:
+ TREE-ORDER: 325
+ PAGE-SIZE: 4096
+ COMPENSATION-COUNT: 4005
+ READ-COUNT: 211804
+ WRITE-COUNT: 108211
+ SPLIT-COUNT: 333
+ MERGE-COUNT: 0
+ Did 1 check.
+    Pass: 1 (100%)
+    Skip: 0 ( 0%)
+    Fail: 0 ( 0%)
+
+Evaluation took:
+  15.318 seconds of real time
+  15.140625 seconds of total run time (9.812500 user, 5.328125 system)
+  [ Real times consist of 0.144 seconds GC time, and 15.174 seconds non-GC time. ]
+  [ Run times consist of 0.171 seconds GC time, and 14.970 seconds non-GC time. ]
+  98.84% CPU
+  53,513,679,870 processor cycles
+  5,267,848,512 bytes consed
+-------------------------------
+Running test INSERTION-TEST .
+STAT:
+ TREE-ORDER: 500
+ PAGE-SIZE: 8192
+ COMPENSATION-COUNT: 3259
+ READ-COUNT: 207710
+ WRITE-COUNT: 105626
+ SPLIT-COUNT: 213
+ MERGE-COUNT: 0
+ Did 1 check.
+    Pass: 1 (100%)
+    Skip: 0 ( 0%)
+    Fail: 0 ( 0%)
+
+Evaluation took:
+  18.490 seconds of real time
+  18.312500 seconds of total run time (12.187500 user, 6.125000 system)
+  [ Real times consist of 0.227 seconds GC time, and 18.263 seconds non-GC time. ]
+  [ Run times consist of 0.250 seconds GC time, and 18.063 seconds non-GC time. ]
+  99.04% CPU
+  64,593,839,485 processor cycles
+  7,504,893,824 bytes consed
+-------------------------------
+Running test INSERTION-TEST .
+STAT:
+ TREE-ORDER: 1000
+ PAGE-SIZE: 16384
+ COMPENSATION-COUNT: 2018
+ READ-COUNT: 203990
+ WRITE-COUNT: 101589
+ SPLIT-COUNT: 107
+ MERGE-COUNT: 0
+ Did 1 check.
+    Pass: 1 (100%)
+    Skip: 0 ( 0%)
+    Fail: 0 ( 0%)
+
+Evaluation took:
+  28.361 seconds of real time
+  27.984375 seconds of total run time (20.906250 user, 7.078125 system)
+  [ Real times consist of 0.409 seconds GC time, and 27.952 seconds non-GC time. ]
+  [ Run times consist of 0.281 seconds GC time, and 27.704 seconds non-GC time. ]
+  98.67% CPU
+  99,078,138,029 processor cycles
+  13,302,930,560 bytes consed

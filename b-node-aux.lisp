@@ -23,6 +23,9 @@
     (when (not (node-2-left-empty-p tree left))
       left)))
 
+(defun node-underflow (tree node)
+  (> (truncate (tree-order tree) 2) (node-keys-count node)))
+
 (defun nodes-underflow-p (tree &rest nodes)
   "When sum of node-keys-count is smaller than tree-order its possible to merge node."
   (> (tree-order tree) (reduce #'+ (mapcar #'node-keys-count nodes))))

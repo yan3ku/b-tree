@@ -29,3 +29,6 @@
             (when (and (root-p tree (ref-node to-del-parent))
                        (= 0 (node-keys-count (ref-node to-del-parent))))
               (setf (root-addr tree) (ref-node-addr to-del)))))))))
+
+#+nil
+(b-tree-print *t*)

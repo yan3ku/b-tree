@@ -5,6 +5,14 @@
     :type fixnum
     :initform 0
     :accessor compensation-count)
+   (read-count
+    :type fixnum
+    :initform 0
+    :accessor read-count)
+   (write-count
+    :type fixnum
+    :initform 0
+    :accessor write-count)
    (split-count
     :type fixnum
     :initform 0
@@ -18,6 +26,8 @@
 (defmethod show-stats ((object stat-mixin) (stream t))
   (let ((slots (mapcar #'sb-mop:slot-definition-name (sb-mop:class-slots (class-of (make-instance 'stat-mixin))))))
     (format stream "~&STAT:~%")
+    (format stream "  TREE-ORDER: ~A~%" (tree-order object))
+    (format stream "  PAGE-SIZE: ~A~%" (page-size object))
     (dolist (slot slots)
       (let ((slot-value (slot-value object slot)))
         (format stream " ~A: ~A~%" slot slot-value)))))
@@ -30,3 +40,10 @@
 
 (defmethod b-tree-merge :after ((tree b-tree) parent to-split)
   (incf (merge-count tree)))
+
+(defmethod read-node :after ((tree b-tree) addr)
+  (incf (read-count tree)))
+
+
+(defmethod write-node :after ((tree b-tree) node)
+  (incf (write-count tree)))

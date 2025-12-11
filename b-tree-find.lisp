@@ -30,7 +30,10 @@
             (values nil nil)
             (b-tree-find tree to-find (ref-ptr found) found)))))
 
-(defmethod b-tree-inorder-map ((tree b-tree) &optional (callback #'print) (node-addr (root-addr tree)))
+(defun print-key (tree key)
+  (format t "~A ~A~%" key (read-record tree (b-record-ptr key))))
+
+(defmethod b-tree-inorder-map ((tree b-tree) &optional (callback (lambda (k) (print-key tree k))) (node-addr (root-addr tree)))
   "In-order traversal of the B-tree.
    Calls CALLBACK on each key (b-key) in sorted order."
   (let ((node (read-node tree node-addr)))

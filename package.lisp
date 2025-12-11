@@ -5,6 +5,7 @@
   (:export #:read-record-from-stream  #:write-record-to-stream
            #:seq-write-i4 #:seq-read-i4
            #:make-record
+           #:record-value
            #:make-random-record))
 
 (defpackage #:pager
@@ -44,6 +45,7 @@
            #:close-b-tree
            #:tree-order
            #:make-b-key
+           #:make-b-key-record
            #:b-key
            #:b-tree-inorder-map
            #:b-tree-insert
@@ -53,4 +55,4 @@
   (:use #:cl #:fiveam #:pager))
 
 (defpackage #:b-tree-test
-  (:use #:cl #:fiveam #:pager #:b-tree))
+  (:use #:cl #:fiveam #:pager #:record #:b-tree))

@@ -7,6 +7,15 @@
     (when-let ((left (left-underflow tree parent node)))
       (b-node-merge tree (ref-left parent) left node))))
 
+(defmethod b-tree-replace ((tree b-tree) key record)
+  (multiple-value-bind (rep replace-parent)
+      (b-tree-find tree key)
+    (declare (ignore replace-parent))
+    (when rep
+      (write-record tree record (or (b-record-ptr (ref-key rep)) (new-record-addr tree)))
+      (mark-dirty tree (ref-node rep))
+      (write-dirty tree))))
+
 (defmethod b-tree-delete ((tree b-tree) (key b-key))
   (multiple-value-bind (to-del to-del-parent)
       (b-tree-find tree key)

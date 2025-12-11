@@ -72,5 +72,5 @@
 #+nil
 (progn
   (setf *t* (make-b-tree "test" 5))
-  (loop :for x :from 0 :to 400 by 10 do (b-tree-insert *t* (make-b-key x)))
+  (loop :for x :from 0 :to 400 by 10 do (b-tree-insert *t* (make-b-key-record *t* x (record::make-record x))))
   (close-b-tree *t*))
